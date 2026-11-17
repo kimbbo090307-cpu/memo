@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>김보경 포트폴리오</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-sand: #f4f2ec;
+            --card-bg: #ffffff;
+            --border-soft: #e2ded6;
+            --text-dark: #1b201d;
+            --text-sub: #5c635e;
+            
+            /* 에메랄드 그린 포인트 */
+            --emerald-main: #065f46;
+            --emerald-light: #d1fae5;
+            --emerald-hover: #047857;
+            --emerald-border: #a7f3d0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-sand);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 740px;
+        }
+
+        header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--emerald-main);
+            margin-bottom: 24px;
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-soft);
+            border-radius: 30px;
+            padding: 5px;
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 4px 15px rgba(6, 95, 70, 0.05);
+        }
+
+        .nav-btn {
+            background: transparent;
+            color: var(--text-sub);
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(6, 95, 70, 0.25);
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--emerald-main);
+        }
+
+        /* 톱니바퀴 프로필 아바타 */
+        .profile-avatar-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background-color: var(--emerald-light);
+            border: 2px solid var(--emerald-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--emerald-main);
+            box-shadow: 0 4px 12px rgba(6, 95, 70, 0.12);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--emerald-main);
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .home-container {
+            text-align: center;
+            padding: 5px 0 10px 0;
+        }
+
+        .home-main-text {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.5;
+            word-break: keep-all;
+            margin-bottom: 12px;
+        }
+
+        .home-sub-text {
+            color: var(--text-sub);
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            word-break: keep-all;
+        }
+
+        .home-tags {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: var(--emerald-light);
+            color: var(--emerald-main);
+            border: 1px solid var(--emerald-border);
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .profile-item {
+            background: #faf9f5;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+        }
+
+        .profile-item span {
+            color: var(--text-sub);
+            font-size: 0.78rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .profile-item p {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-dark);
+        }
+
+        .bio-text {
+            line-height: 1.7;
+            color: #2d3330;
+            font-size: 0.92rem;
+            word-break: keep-all;
+            background: #faf9f5;
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid var(--emerald-main);
+        }
+
+        .project-list p {
+            line-height: 1.8;
+            color: var(--text-dark);
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .growth-list {
+            list-style: none;
+            color: var(--text-dark);
+            line-height: 1.8;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .growth-list li {
+            margin-bottom: 4px;
+        }
+
+        .contact-list p {
+            margin-bottom: 10px;
+            font-size: 0.92rem;
+            color: var(--text-dark);
+        }
+
+        .contact-list a {
+            color: var(--emerald-main);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .contact-list a:hover {
+            color: var(--emerald-hover);
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px 0;
+            color: var(--text-sub);
+            font-size: 0.78rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 class="title">김보경 포트폴리오</h1>
+            
+            <nav>
+                <button class="nav-btn" onclick="scrollToSection('home')">Home</button>
+                <button class="nav-btn" onclick="scrollToSection('profile')">Profile</button>
+                <button class="nav-btn" onclick="scrollToSection('projects')">Projects/Skills</button>
+                <button class="nav-btn" onclick="scrollToSection('growth')">Growth</button>
+                <button class="nav-btn" onclick="scrollToSection('contact')">Contact</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Home -->
+            <section id="home" class="content-card">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar">
+                        <!-- 톱니바퀴 아이콘 -->
+                        <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="home-container">
+                    <div class="home-main-text">
+                        "로봇 공학을 꿈꾸는 예비 공학자 김보경입니다"
+                    </div>
+                    <div class="home-sub-text">
+                        기계의 구동 메커니즘을 탐구하고, 단순한 아이디어를 물리적 시스템으로 구현해 나갑니다.
+                    </div>
+                    <div class="home-tags">
+                        <span class="tag">#로봇공학</span>
+                        <span class="tag">#코딩</span>
+                        <span class="tag">#Python</span>
+                        <span class="tag">#자율주행</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile -->
+            <section id="profile" class="content-card">
+                <div class="section-title">PROFILE</div>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <span>이름</span>
+                        <p>김보경</p>
+                    </div>
+                    <div class="profile-item">
+                        <span>나이</span>
+                        <p>18살</p>
+                    </div>
+                    <div class="profile-item">
+                        <span>학교</span>
+                        <p>인명여자고등학교</p>
+                    </div>
+                    <div class="profile-item">
+                        <span>관심 분야</span>
+                        <p>휴머노이드</p>
+                    </div>
+                </div>
+                <div class="bio-text">
+                    어릴 때부터 사물의 작동 원리가 궁금해 다양한 기계를 직접 해체해 보며 자연스럽게 기계공학의 길로 접어들었습니다. 단순한 아이디어를 물리적 형태와 구동 메커니즘으로 실체화하는 과정에서 가장 큰 흥미를 느낍니다. 복잡한 시스템을 더욱 효율적으로 개선하는 작업을 즐깁니다.
+                </div>
+            </section>
+
+            <!-- Projects/Skills -->
+            <section id="projects" class="content-card">
+                <div class="section-title">PROJECTS / SKILLS</div>
+                <div class="project-list">
+                    <p>• 로봇 공학</p>
+                    <p>• 코딩</p>
+                    <p>• 자율주행 자동차 만들기</p>
+                    <p>• 파이썬 코딩 독학 중</p>
+                </div>
+            </section>
+
+            <!-- Growth -->
+            <section id="growth" class="content-card">
+                <div class="section-title">GROWTH</div>
+                <ul class="growth-list">
+                    <li>• 관교여자중학교 졸업</li>
+                    <li>• 인명여자고등학교 재학</li>
+                    <li>• 공학 동아리 디카이드(DICADE) 부원으로서 활동 중</li>
+                </ul>
+            </section>
+
+            <!-- Contact -->
+            <section id="contact" class="content-card">
+                <div class="section-title">CONTACT</div>
+                <div class="contact-list">
+                    <p>📞 전화번호: 010-8137-3385</p>
+                    <p>📧 이메일: <a href="/cdn-cgi/l/email-protection#a2c9cbcfc0c0cd929b92919295e2c5cfc3cbce8cc1cdcf"><span class="__cf_email__" data-cfemail="1e7577737c7c712e272e2d2e295e79737f7772307d7173">[email&#160;protected]</span></a></p>
+                    <p>📷 인스타그램: <a href="https://instagram.com/bx3.7en_" target="_blank">bx3.7en_</a></p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© KIM BOKYUNG. ALL RIGHTS RESERVED.</p>
+        </footer>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
