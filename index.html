@@ -2,380 +2,2075 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>김보경 포트폴리오</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The B-Archive</title>
     <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
         :root {
-            --bg-sand: #f4f2ec;
-            --card-bg: #ffffff;
-            --border-soft: #e2ded6;
-            --text-dark: #1b201d;
-            --text-sub: #5c635e;
-            
-            /* 에메랄드 그린 포인트 */
-            --emerald-main: #065f46;
-            --emerald-light: #d1fae5;
-            --emerald-hover: #047857;
-            --emerald-border: #a7f3d0;
+            --bg-color: #F7F4EE;
+            --card-color: #FFFFFF;
+            --accent-color: #3B6E8C;
+            --text-color: #1E3A5F;
+            --sub-bg: #EAE3D2;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background 0.3s, color 0.3s;
         }
 
         body {
-            background-color: var(--bg-sand);
-            color: var(--text-dark);
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            width: 100vw;
+        }
+
+        body.sidebar-open::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1500;
+            display: block;
+        }
+
+        sidebar {
+            width: 260px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-right: 2px solid var(--sub-bg);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 50px 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 740px;
-        }
-
-        header {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .title {
-            font-size: 2.1rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--emerald-main);
-            margin-bottom: 24px;
-        }
-
-        nav {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid var(--border-soft);
-            border-radius: 30px;
-            padding: 5px;
-            backdrop-filter: blur(10px);
-            display: inline-flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 4px;
-            box-shadow: 0 4px 15px rgba(6, 95, 70, 0.05);
-        }
-
-        .nav-btn {
-            background: transparent;
-            color: var(--text-sub);
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.88rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .nav-btn:hover {
-            background: var(--emerald-main);
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(6, 95, 70, 0.25);
-        }
-
-        .content-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-soft);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 20px;
+            z-index: 1600;
             position: relative;
-            overflow: hidden;
+            flex-shrink: 0;
         }
 
-        .content-card::before {
-            content: '';
-            position: absolute;
+        .sidebar-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-close-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+        }
+
+        .menu-list {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .menu-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            font-size: 1rem;
+            user-select: none;
+            background-color: transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: var(--sub-bg);
+            color: var(--accent-color);
+        }
+
+        .menu-item.dragging, .session-row-item.dragging {
+            opacity: 0.4;
+            background-color: var(--sub-bg);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            opacity: 0.5;
+            margin-left: 6px;
+            margin-right: 2px;
+            font-size: 1rem;
+            letter-spacing: -2px;
+            touch-action: none;
+            padding: 6px 8px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .add-section {
+            border-top: 1px solid var(--sub-bg);
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            font-size: 0.95rem;
+            min-height: 44px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .mobile-top-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-bottom: 2px solid var(--sub-bg);
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
+            height: 70px;
+            z-index: 1500;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 5px;
+            z-index: 1550;
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 24px;
             height: 3px;
-            background: var(--emerald-main);
+            background-color: var(--text-color);
+            border-radius: 2px;
         }
 
-        /* 톱니바퀴 프로필 아바타 */
-        .profile-avatar-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 16px;
+        main {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+            width: 100%;
+            max-width: 100%;
         }
 
-        .profile-avatar {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background-color: var(--emerald-light);
-            border: 2px solid var(--emerald-border);
+        .header-bar {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            color: var(--emerald-main);
-            box-shadow: 0 4px 12px rgba(6, 95, 70, 0.12);
+            margin-bottom: 20px;
+            position: relative;
         }
 
-        .section-title {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: var(--emerald-main);
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-soft);
-            padding-bottom: 10px;
-            margin-bottom: 18px;
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .batch-delete-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-color);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--sub-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .batch-delete-bar.show {
+            display: flex;
+        }
+
+        .search-container {
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .home-container {
-            text-align: center;
-            padding: 5px 0 10px 0;
-        }
-
-        .home-main-text {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            line-height: 1.5;
-            word-break: keep-all;
-            margin-bottom: 12px;
-        }
-
-        .home-sub-text {
-            color: var(--text-sub);
-            font-size: 0.92rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            word-break: keep-all;
-        }
-
-        .home-tags {
+        .search-btn {
+            background: var(--card-color);
+            border: 1px solid var(--sub-bg);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
+            align-items: center;
             justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            flex-shrink: 0;
+        }
+
+        .search-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-color);
+        }
+
+        .search-input-box {
+            display: none;
+            align-items: center;
+            background: var(--card-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 20px;
+            padding: 4px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            width: 180px;
+        }
+
+        .search-input-box.open {
+            display: flex;
+        }
+
+        .search-input-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            width: 100%;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .session-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .session-tab {
+            padding: 8px 14px;
+            background-color: var(--card-color);
+            border: 1px solid var(--sub-bg);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .session-tab.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .tab-star-icon {
+            width: 15px;
+            height: 15px;
+            fill: #FFD43B;
+            flex-shrink: 0;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-left: 5px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            position: relative;
+            word-break: break-word;
+            user-select: none;
+            z-index: 1;
+        }
+
+        .card.active-card {
+            z-index: 9999;
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+            padding-right: 70px;
+        }
+
+        .card-top-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .card-checkbox {
+            display: none;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .batch-mode .card-checkbox {
+            display: block;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .star-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #D3D3D3;
+        }
+
+        .star-btn.active svg {
+            fill: #FFD43B;
+        }
+
+        .sidebar-dots-container {
+            position: relative;
+            z-index: 999999;
+        }
+
+        .dots-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 6px 10px;
+        }
+
+        .card-content-box {
+            position: relative;
+        }
+
+        .card-text {
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .card-text.expanded {
+            display: block;
+            -webkit-line-clamp: unset;
+        }
+
+        .card-text a, .link-card-box a {
+            color: #2563EB;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .link-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .link-card-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.03);
+            border: 1px solid var(--sub-bg);
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .checklist-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checklist-item span.checked {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 6px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .media-wrapper {
+            display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            margin-top: 10px;
         }
 
-        .tag {
-            background: var(--emerald-light);
-            color: var(--emerald-main);
-            border: 1px solid var(--emerald-border);
-            padding: 6px 14px;
-            border-radius: 15px;
-            font-size: 0.82rem;
-            font-weight: 700;
+        .media-container {
+            position: relative;
+            display: inline-block;
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--sub-bg);
+            cursor: pointer;
+            background: #000;
+            flex-shrink: 0;
         }
 
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 10px;
-            margin-bottom: 18px;
+        .media-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .profile-item {
-            background: #faf9f5;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border-soft);
+        .zoom-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 4px;
+            font-size: 0.7rem;
+            border-radius: 4px;
         }
 
-        .profile-item span {
-            color: var(--text-sub);
-            font-size: 0.78rem;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .profile-item p {
-            font-weight: 700;
-            font-size: 0.92rem;
-            color: var(--text-dark);
-        }
-
-        .bio-text {
-            line-height: 1.7;
-            color: #2d3330;
-            font-size: 0.92rem;
-            word-break: keep-all;
-            background: #faf9f5;
-            padding: 18px;
-            border-radius: 10px;
-            border-left: 4px solid var(--emerald-main);
-        }
-
-        .project-list p {
-            line-height: 1.8;
-            color: var(--text-dark);
-            font-size: 0.92rem;
-            font-weight: 600;
-        }
-
-        .growth-list {
-            list-style: none;
-            color: var(--text-dark);
-            line-height: 1.8;
-            font-size: 0.92rem;
-            font-weight: 600;
-        }
-
-        .growth-list li {
-            margin-bottom: 4px;
-        }
-
-        .contact-list p {
-            margin-bottom: 10px;
-            font-size: 0.92rem;
-            color: var(--text-dark);
-        }
-
-        .contact-list a {
-            color: var(--emerald-main);
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .contact-list a:hover {
-            color: var(--emerald-hover);
-            text-decoration: underline;
-        }
-
-        footer {
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 35px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            z-index: 999999999 !important;
+            width: 130px;
             text-align: center;
-            padding: 24px 0;
-            color: var(--text-sub);
-            font-size: 0.78rem;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #111111 !important;
+            font-weight: 500;
+        }
+        .dropdown-item:hover {
+            background-color: #F1F5F9;
+        }
+
+        .dropdown-item.delete {
+            color: #d9534f !important;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: none;
+            z-index: 1000;
+            line-height: 0;
+            padding-bottom: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2500;
+            padding: 15px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--sub-bg);
+            padding: 25px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 460px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 18px;
+            font-size: 1.25rem;
+        }
+
+        .modal-content input[type="text"], .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--sub-bg);
+            border-radius: 8px;
+            background: #fff;
+            color: #111;
+            font-size: 1rem;
+        }
+
+        .modal-content textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .color-picker-box {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--sub-bg);
+            padding: 10px 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .color-picker-box label {
+            font-size: 0.82rem;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+        .color-input-styled {
+            -webkit-appearance: none;
+            border: none;
+            width: 100%;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: transparent;
+        }
+        .color-input-styled::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        .color-input-styled::-webkit-color-swatch {
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 6px;
+        }
+
+        .media-input-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .unified-input-box {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            background: #FFFFFF;
+            border: 1px solid #CCCCCC;
+            border-radius: 6px;
+            padding: 4px 6px 4px 10px;
+            min-width: 0;
+        }
+
+        .unified-input-box.locked {
+            background: #F4F4F4;
+        }
+
+        .unified-input-box input[type="text"] {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.9rem;
+            color: #111;
+            min-width: 0;
+            padding: 6px 0;
+        }
+
+        .file-select-label {
+            background-color: #EFEFEF;
+            border: 1px solid #767676;
+            color: #000000;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            margin-left: 6px;
+            flex-shrink: 0;
+        }
+
+        .remove-row-btn {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            white-space: nowrap;
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            cursor: pointer;
+            padding: 15px;
+        }
+        .image-modal.open {
+            display: flex;
+        }
+        .image-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-top-bar {
+                display: flex;
+            }
+            .mobile-close-btn {
+                display: block;
+            }
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+            sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                padding: 20px;
+                transition: left 0.3s ease;
+                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+                z-index: 2000;
+                background-color: var(--bg-color) !important;
+                color: var(--text-color) !important;
+                opacity: 1 !important;
+                backdrop-filter: none !important;
+            }
+            sidebar.open {
+                left: 0;
+            }
+            main {
+                padding: 20px 15px;
+                margin-top: 70px;
+                height: calc(100vh - 70px);
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1 class="title">김보경 포트폴리오</h1>
-            
-            <nav>
-                <button class="nav-btn" onclick="scrollToSection('home')">Home</button>
-                <button class="nav-btn" onclick="scrollToSection('profile')">Profile</button>
-                <button class="nav-btn" onclick="scrollToSection('projects')">Projects/Skills</button>
-                <button class="nav-btn" onclick="scrollToSection('growth')">Growth</button>
-                <button class="nav-btn" onclick="scrollToSection('contact')">Contact</button>
-            </nav>
-        </header>
-
-        <main>
-            <!-- Home -->
-            <section id="home" class="content-card">
-                <div class="profile-avatar-wrapper">
-                    <div class="profile-avatar">
-                        <!-- 톱니바퀴 아이콘 -->
-                        <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="home-container">
-                    <div class="home-main-text">
-                        "로봇 공학을 꿈꾸는 예비 공학자 김보경입니다"
-                    </div>
-                    <div class="home-sub-text">
-                        기계의 구동 메커니즘을 탐구하고, 단순한 아이디어를 물리적 시스템으로 구현해 나갑니다.
-                    </div>
-                    <div class="home-tags">
-                        <span class="tag">#로봇공학</span>
-                        <span class="tag">#코딩</span>
-                        <span class="tag">#Python</span>
-                        <span class="tag">#자율주행</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Profile -->
-            <section id="profile" class="content-card">
-                <div class="section-title">PROFILE</div>
-                <div class="profile-grid">
-                    <div class="profile-item">
-                        <span>이름</span>
-                        <p>김보경</p>
-                    </div>
-                    <div class="profile-item">
-                        <span>나이</span>
-                        <p>18살</p>
-                    </div>
-                    <div class="profile-item">
-                        <span>학교</span>
-                        <p>인명여자고등학교</p>
-                    </div>
-                    <div class="profile-item">
-                        <span>관심 분야</span>
-                        <p>휴머노이드</p>
-                    </div>
-                </div>
-                <div class="bio-text">
-                    어릴 때부터 사물의 작동 원리가 궁금해 다양한 기계를 직접 해체해 보며 자연스럽게 기계공학의 길로 접어들었습니다. 단순한 아이디어를 물리적 형태와 구동 메커니즘으로 실체화하는 과정에서 가장 큰 흥미를 느낍니다. 복잡한 시스템을 더욱 효율적으로 개선하는 작업을 즐깁니다.
-                </div>
-            </section>
-
-            <!-- Projects/Skills -->
-            <section id="projects" class="content-card">
-                <div class="section-title">PROJECTS / SKILLS</div>
-                <div class="project-list">
-                    <p>• 로봇 공학</p>
-                    <p>• 코딩</p>
-                    <p>• 자율주행 자동차 만들기</p>
-                    <p>• 파이썬 코딩 독학 중</p>
-                </div>
-            </section>
-
-            <!-- Growth -->
-            <section id="growth" class="content-card">
-                <div class="section-title">GROWTH</div>
-                <ul class="growth-list">
-                    <li>• 관교여자중학교 졸업</li>
-                    <li>• 인명여자고등학교 재학</li>
-                    <li>• 공학 동아리 디카이드(DICADE) 부원으로서 활동 중</li>
-                </ul>
-            </section>
-
-            <!-- Contact -->
-            <section id="contact" class="content-card">
-                <div class="section-title">CONTACT</div>
-                <div class="contact-list">
-                    <p>📞 전화번호: 010-8137-3385</p>
-                    <p>📧 이메일: <a href="/cdn-cgi/l/email-protection#a2c9cbcfc0c0cd929b92919295e2c5cfc3cbce8cc1cdcf"><span class="__cf_email__" data-cfemail="1e7577737c7c712e272e2d2e295e79737f7772307d7173">[email&#160;protected]</span></a></p>
-                    <p>📷 인스타그램: <a href="https://instagram.com/bx3.7en_" target="_blank">bx3.7en_</a></p>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <p>© KIM BOKYUNG. ALL RIGHTS RESERVED.</p>
-        </footer>
+    <div class="mobile-top-bar">
+        <button class="hamburger-btn" onclick="toggleMobileSidebar(event)">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <span style="font-weight: bold; font-size: 1.1rem;">The B-Archive</span>
+        <div style="width: 24px;"></div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        function scrollToSection(id) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
+    <sidebar id="appSidebar">
+        <div class="sidebar-header">
+            <span>The B-Archive</span>
+            <button class="mobile-close-btn" onclick="toggleMobileSidebar(event)">×</button>
+        </div>
+        <ul class="menu-list" id="menuList"></ul>
+
+        <div class="add-section">
+            <button class="btn" onclick="openCreateArchiveModal()">아카이브 생성하기</button>
+        </div>
+    </sidebar>
+
+    <main id="mainContent" onclick="handleMainClick(event)"></main>
+
+    <div class="modal" id="typeSelectModal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <h3 style="margin-bottom: 20px;">작성할 항목 선택</h3>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn" onclick="selectPostType('note')">노트</button>
+                <button class="btn" onclick="selectPostType('checklist')">체크리스트</button>
+            </div>
+            <button class="btn" style="background-color: #888; margin-top: 10px;" onclick="toggleTypeSelectModal(false)">취소</button>
+        </div>
+    </div>
+
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <h3 id="modalHeaderTitle">새 노트 작성</h3>
+            <div id="sessionSelectArea" style="margin-bottom: 10px;">
+                <select id="modalFolder" style="width: 100%;"></select>
+            </div>
+            <input type="text" id="modalTitle" placeholder="제목 (선택 사항)">
+            <textarea id="modalContent" placeholder="내용 또는 링크(URL) 입력..."></textarea>
+            
+            <div id="mediaInputsContainer">
+                <label style="font-size: 0.85rem; display: block; margin-bottom: 6px;">사진 / GIF 첨부</label>
+            </div>
+
+            <input type="hidden" id="editTargetId">
+            <div class="modal-buttons">
+                <button class="btn" style="background-color: #888;" onclick="toggleModal(false)">취소</button>
+                <button class="btn" onclick="savePost()">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="checkModal">
+        <div class="modal-content">
+            <h3 id="checkModalHeaderTitle">새 체크리스트 작성</h3>
+            <div style="margin-bottom: 10px;">
+                <select id="checkModalFolder" style="width: 100%;"></select>
+            </div>
+            <input type="text" id="checkModalTitle" placeholder="체크리스트 제목">
+            <div id="checkItemsContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
+                <label style="font-size: 0.85rem; display: block;">체크리스트 항목들</label>
+            </div>
+            <button class="btn" style="background-color: #666; font-size:0.85rem; padding:6px; margin-bottom:10px;" onclick="addCheckInputRow('')">+ 항목 추가</button>
+
+            <input type="hidden" id="editCheckTargetId">
+            <div class="modal-buttons">
+                <button class="btn" style="background-color: #888;" onclick="toggleCheckModal(false)">취소</button>
+                <button class="btn" onclick="saveChecklistPost()">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="createArchiveModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3>새 아카이브 생성</h3>
+            <input type="text" id="newArchName" placeholder="아카이브 이름 입력">
+            <div class="color-picker-wrapper">
+                <div class="color-picker-box">
+                    <label>배경 색상</label>
+                    <input type="color" id="newArchBg" value="#1E293B" class="color-input-styled">
+                </div>
+                <div class="color-picker-box">
+                    <label>포인트 색상</label>
+                    <input type="color" id="newArchAccent" value="#38BDF8" class="color-input-styled">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" style="background-color: #888;" onclick="toggleCreateArchiveModal(false)">취소</button>
+                <button class="btn" onclick="createNewArchiveConfirm()">생성하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingModal">
+        <div class="modal-content">
+            <h3 id="settingModalTitle">아카이브 설정</h3>
+            <div id="archiveColorSettings">
+                <input type="text" id="editPageName" placeholder="아카이브 이름">
+                <div class="color-picker-wrapper">
+                    <div class="color-picker-box">
+                        <label>배경 색상</label>
+                        <input type="color" id="editPageBg" class="color-input-styled">
+                    </div>
+                    <div class="color-picker-box">
+                        <label>포인트 색상</label>
+                        <input type="color" id="editPageAccent" class="color-input-styled">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; border-top: 1px solid var(--sub-bg); padding-top: 14px;">
+                <label style="font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px;">세션 관리 (드래그하여 순서 변경)</label>
+                <div id="sessionManageList" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-bottom: 12px;"></div>
+                <button type="button" class="btn" style="background-color: #555; font-size: 0.88rem; padding: 8px;" onclick="addSessionRowInModal()">+ 세션 추가</button>
+            </div>
+
+            <input type="hidden" id="targetPageKey">
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="btn" style="background-color: #888;" onclick="toggleSettingModal(false)">취소</button>
+                <button class="btn" onclick="savePageSetting()">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <div id="modalZoomWrapper" style="display:flex; justify-content:center; align-items:center; width:100%; height:100%;"></div>
+    </div>
+
+    <script>
+        let currentTab = 'Memo';
+        let currentSession = '전체';
+        let searchQuery = '';
+        let isBatchMode = false;
+        let selectedItemIds = new Set();
+        
+        const CUTE_STAR_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2.5c.6 0 1.1.3 1.4.9l2.3 4.7 5.2.8c.6.1 1.1.5 1.3 1.1.2.6 0 1.2-.4 1.6l-3.8 3.7.9 5.2c.1.6-.1 1.2-.6 1.6-.5.4-1.1.4-1.7.1L12 19.7l-4.6 2.4c-.5.3-1.2.2-1.7-.1-.5-.4-.7-1-.6-1.6l.9-5.2-3.8-3.7c-.4-.4-.6-1-.4-1.6.2-.6.7-1 1.3-1.1l5.2-.8 2.3-4.7c.3-.6.8-.9 1.4-.9z"/></svg>`;
+        const TAB_STAR_SVG = `<svg class="tab-star-icon" viewBox="0 0 24 24"><path d="M12 2.5c.6 0 1.1.3 1.4.9l2.3 4.7 5.2.8c.6.1 1.1.5 1.3 1.1.2.6 0 1.2-.4 1.6l-3.8 3.7.9 5.2c.1.6-.1 1.2-.6 1.6-.5.4-1.1.4-1.7.1L12 19.7l-4.6 2.4c-.5.3-1.2.2-1.7-.1-.5-.4-.7-1-.6-1.6l.9-5.2-3.8-3.7c-.4-.4-.6-1-.4-1.6.2-.6.7-1 1.3-1.1l5.2-.8 2.3-4.7c.3-.6.8-.9 1.4-.9z"/></svg>`;
+        const SEARCH_ICON_SVG = `<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`;
+
+        let themes = JSON.parse(localStorage.getItem('themes')) || {
+            'Memo': { bg: '#F7F4EE', card: '#FFFFFF', accent: '#3B6E8C', text: '#1E3A5F', sub: '#EAE3D2' },
+            'Marvel': { bg: '#1A1A2E', card: 'rgba(255,255,255,0.08)', accent: '#E62429', text: '#FFFFFF', sub: 'rgba(255,255,255,0.15)' },
+            'MCR': { bg: '#121212', card: 'rgba(255,255,255,0.08)', accent: '#8B0000', text: '#F5F5F5', sub: 'rgba(255,255,255,0.15)' }
+        };
+
+        if (themes['memo']) {
+            themes['Memo'] = themes['memo'];
+            delete themes['memo'];
+        }
+
+        let archiveOrder = JSON.parse(localStorage.getItem('archiveOrder')) || Object.keys(themes).filter(k => k !== 'Memo');
+        Object.keys(themes).forEach(k => {
+            if (k !== 'Memo' && !archiveOrder.includes(k)) archiveOrder.push(k);
+        });
+        archiveOrder = archiveOrder.filter(k => themes[k]);
+        localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+
+        let memos = JSON.parse(localStorage.getItem('memos')) || [
+            { id: 101, type: 'note', folder: '내 생각', title: '테스트 노트', content: '디테일 수정 완료!', mediaObjects: [], links: [], date: '2026-11-16', favorite: true, pinned: false }
+        ];
+        
+        let hobbyPosts = JSON.parse(localStorage.getItem('hobbyPosts')) || [
+            { id: 201, page: 'MCR', type: 'note', folder: '미분류', title: 'Welcome', thought: '원하는 아카이브를 마음껏 꾸며보세요.', mediaObjects: [], links: [], date: '2026-11-16', favorite: false, pinned: false }
+        ];
+
+        let memoFolders = JSON.parse(localStorage.getItem('memoFolders')) || ['개인정보', '내 생각', '꿈'];
+        let hobbyFolders = JSON.parse(localStorage.getItem('hobbyFolders')) || {
+            'Marvel': ['영화', '캐릭터'],
+            'MCR': ['앨범', '최애곡']
+        };
+
+        function toggleMobileSidebar(e) {
+            if (e) e.stopPropagation();
+            const sidebar = document.getElementById('appSidebar');
+            sidebar.classList.toggle('open');
+            if (sidebar.classList.contains('open')) {
+                document.body.classList.add('sidebar-open');
+                closeAllMenus();
+            } else {
+                document.body.classList.remove('sidebar-open');
             }
         }
+
+        function handleMainClick(e) {
+            const sidebar = document.getElementById('appSidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                document.body.classList.remove('sidebar-open');
+                return;
+            }
+            closeAllMenus();
+        }
+
+        function setTheme(tab) {
+            const t = themes[tab] || themes['Memo'];
+            document.documentElement.style.setProperty('--bg-color', t.bg);
+            document.documentElement.style.setProperty('--card-color', t.card);
+            document.documentElement.style.setProperty('--accent-color', t.accent);
+            document.documentElement.style.setProperty('--text-color', t.text);
+            document.documentElement.style.setProperty('--sub-bg', t.sub);
+        }
+
+        function switchTab(tab, element, bg, accent, text) {
+            currentTab = tab;
+            currentSession = '전체';
+            searchQuery = '';
+            isBatchMode = false;
+            selectedItemIds.clear();
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            if (!themes[tab] && bg) {
+                themes[tab] = { bg: bg, card: 'rgba(255,255,255,0.08)', accent: accent, text: text, sub: 'rgba(255,255,255,0.15)' };
+                localStorage.setItem('themes', JSON.stringify(themes));
+                if (!archiveOrder.includes(tab)) {
+                    archiveOrder.push(tab);
+                    localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+                }
+            }
+            setTheme(tab);
+            renderSidebar();
+            render();
+
+            if (window.innerWidth <= 768) {
+                document.getElementById('appSidebar').classList.remove('open');
+                document.body.classList.remove('sidebar-open');
+            }
+        }
+
+        // 사이드바 내부로 드래그 이동 철저 제한
+        function initSortableList(container, itemSelector, onOrderUpdated) {
+            let draggedItem = null;
+
+            container.querySelectorAll(itemSelector).forEach(item => {
+                const handle = item.querySelector('.drag-handle');
+                if (!handle) return;
+
+                handle.addEventListener('mousedown', (e) => {
+                    draggedItem = item;
+                    item.setAttribute('draggable', 'true');
+                });
+
+                handle.addEventListener('mouseup', (e) => {
+                    item.removeAttribute('draggable');
+                    draggedItem = null;
+                });
+
+                item.addEventListener('dragstart', (e) => {
+                    if (!draggedItem) {
+                        e.preventDefault();
+                        return;
+                    }
+                    setTimeout(() => item.classList.add('dragging'), 0);
+                });
+
+                item.addEventListener('dragend', () => {
+                    if (draggedItem) {
+                        draggedItem.classList.remove('dragging');
+                        draggedItem.removeAttribute('draggable');
+                        draggedItem = null;
+                        if (onOrderUpdated) onOrderUpdated();
+                    }
+                });
+
+                handle.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                    draggedItem = item;
+                    item.classList.add('dragging');
+                }, { passive: true });
+
+                handle.addEventListener('touchmove', (e) => {
+                    if (!draggedItem) return;
+                    e.preventDefault();
+                    const touchY = e.touches[0].clientY;
+                    
+                    const containerRect = container.getBoundingClientRect();
+                    if (touchY < containerRect.top || touchY > containerRect.bottom) return;
+
+                    const afterElement = getDragAfterElement(container, itemSelector, touchY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItem);
+                    } else {
+                        container.insertBefore(draggedItem, afterElement);
+                    }
+                }, { passive: false });
+
+                handle.addEventListener('touchend', () => {
+                    if (draggedItem) {
+                        draggedItem.classList.remove('dragging');
+                        draggedItem = null;
+                        if (onOrderUpdated) onOrderUpdated();
+                    }
+                });
+            });
+
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!draggedItem) return;
+                
+                const containerRect = container.getBoundingClientRect();
+                if (e.clientY < containerRect.top || e.clientY > containerRect.bottom) return;
+
+                const afterElement = getDragAfterElement(container, itemSelector, e.clientY);
+                if (afterElement == null) {
+                    container.appendChild(draggedItem);
+                } else {
+                    container.insertBefore(draggedItem, afterElement);
+                }
+            });
+        }
+
+        function getDragAfterElement(container, selector, y) {
+            const draggableElements = [...container.querySelectorAll(`${selector}:not(.dragging)`)];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function renderSidebar() {
+            const menuList = document.getElementById('menuList');
+            let html = `
+                <li class="menu-item ${currentTab === 'Memo' ? 'active' : ''}" onclick="switchTab('Memo', this)">
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">Memo</span>
+                    <div style="display:flex; align-items:center;" onclick="event.stopPropagation(); event.preventDefault();">
+                        <div class="sidebar-dots-container">
+                            <button type="button" class="dots-btn" ontouchstart="event.stopPropagation(); event.preventDefault(); toggleMenu('page-Memo');" onclick="event.stopPropagation(); event.preventDefault(); toggleMenu('page-Memo');">⋮</button>
+                            <div class="dropdown-menu" id="menu-page-Memo">
+                                <div class="dropdown-item" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); openSettingModal('Memo');" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); openSettingModal('Memo');">설정</div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `;
+
+            archiveOrder.forEach((pageName, index) => {
+                if (!themes[pageName] || pageName === 'Memo') return;
+                let dynZIndex = 1000 - index;
+                html += `
+                    <li class="menu-item draggable-archive ${currentTab === pageName ? 'active' : ''}" data-page="${pageName}" style="z-index: ${dynZIndex};" onclick="switchTab('${pageName}', this)">
+                        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">${pageName}</span>
+                        <div style="display:flex; align-items:center;" onclick="event.stopPropagation(); event.preventDefault();">
+                            <span class="drag-handle" title="드래그하여 순서 변경">⋮⋮</span>
+                            <div class="sidebar-dots-container">
+                                <button type="button" class="dots-btn" ontouchstart="event.stopPropagation(); event.preventDefault(); toggleMenu('page-${pageName}');" onclick="event.stopPropagation(); event.preventDefault(); toggleMenu('page-${pageName}');">⋮</button>
+                                <div class="dropdown-menu" id="menu-page-${pageName}">
+                                    <div class="dropdown-item" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); openSettingModal('${pageName}');" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); openSettingModal('${pageName}');">설정</div>
+                                    <div class="dropdown-item delete" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); deletePage('${pageName}');" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); deletePage('${pageName}');">삭제</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            });
+            menuList.innerHTML = html;
+
+            initSortableList(menuList, '.draggable-archive', () => {
+                const updatedOrder = [...menuList.querySelectorAll('.draggable-archive')].map(el => el.dataset.page);
+                archiveOrder = updatedOrder;
+                localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+            });
+        }
+
+        function openCreateArchiveModal() {
+            document.getElementById('newArchName').value = '';
+            document.getElementById('createArchiveModal').classList.add('open');
+        }
+        function toggleCreateArchiveModal(open) {
+            document.getElementById('createArchiveModal').classList.toggle('open', open);
+        }
+
+        function createNewArchiveConfirm() {
+            const nameInput = document.getElementById('newArchName');
+            const name = nameInput.value.trim();
+            const bg = document.getElementById('newArchBg').value;
+            const accent = document.getElementById('newArchAccent').value;
+            
+            if (!name) return alert('아카이브 이름을 입력해 주세요.');
+            if (themes[name]) return alert('이미 존재하는 아카이브입니다.');
+
+            themes[name] = { bg: bg, card: 'rgba(255,255,255,0.08)', accent: accent, text: '#FFFFFF', sub: 'rgba(255,255,255,0.15)' };
+            localStorage.setItem('themes', JSON.stringify(themes));
+
+            archiveOrder.push(name);
+            localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+
+            if(!hobbyFolders[name]) {
+                hobbyFolders[name] = [];
+                localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
+            }
+
+            toggleCreateArchiveModal(false);
+            switchTab(name, null);
+        }
+
+        function deletePage(name) {
+            if(!confirm(`"${name}" 아카이브를 삭제하시겠습니까? 속한 내용도 모두 삭제됩니다.`)) return;
+            delete themes[name];
+            delete hobbyFolders[name];
+            archiveOrder = archiveOrder.filter(item => item !== name);
+            localStorage.setItem('themes', JSON.stringify(themes));
+            localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
+            localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+            hobbyPosts = hobbyPosts.filter(p => p.page !== name);
+            localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            
+            switchTab('Memo', document.querySelector('.menu-item'));
+        }
+
+        function openSettingModal(name) {
+            document.getElementById('targetPageKey').value = name;
+            const isMemo = (name === 'Memo');
+            
+            document.getElementById('settingModalTitle').innerText = isMemo ? 'Memo 설정' : '아카이브 설정';
+            
+            const colorSettings = document.getElementById('archiveColorSettings');
+            if (isMemo) {
+                colorSettings.style.display = 'none';
+            } else {
+                colorSettings.style.display = 'block';
+                document.getElementById('editPageName').value = name;
+                document.getElementById('editPageBg').value = themes[name].bg;
+                document.getElementById('editPageAccent').value = themes[name].accent;
+            }
+            
+            renderSessionManageList(name);
+            document.getElementById('settingModal').classList.add('open');
+        }
+        function toggleSettingModal(open) {
+            document.getElementById('settingModal').classList.toggle('open', open);
+        }
+
+        function renderSessionManageList(pageName) {
+            const container = document.getElementById('sessionManageList');
+            let folders = (pageName === 'Memo') ? memoFolders : (hobbyFolders[pageName] || []);
+            if (folders.length === 0) {
+                container.innerHTML = `<span class="empty-session-msg" style="font-size:0.85rem; opacity:0.6;">등록된 세션이 없습니다. 아래 [+ 세션 추가]를 눌러 추가해 주세요.</span>`;
+                return;
+            }
+            container.innerHTML = folders.map(f => `
+                <div style="display:flex; align-items:center; gap:6px; padding:4px; border-radius:6px;" class="session-row-item" data-old-name="${f}">
+                    <input type="text" value="${f}" class="sess-name-input" style="flex:1; padding:8px; margin-bottom:0; border:1px solid var(--sub-bg); border-radius:6px; font-size:0.9rem; background:#fff; color:#111;">
+                    <span class="drag-handle" title="드래그하여 순서 변경">⋮⋮</span>
+                    <button type="button" class="btn" style="background:#d9534f; width:auto; padding:8px 12px; min-height:auto; font-size:0.85rem;" onclick="this.closest('.session-row-item').remove()">삭제</button>
+                </div>
+            `).join('');
+
+            initSortableList(container, '.session-row-item', null);
+        }
+
+        function addSessionRowInModal() {
+            const container = document.getElementById('sessionManageList');
+            const emptyMsg = container.querySelector('.empty-session-msg');
+            if (emptyMsg) emptyMsg.remove();
+
+            const row = document.createElement('div');
+            row.className = 'session-row-item';
+            row.dataset.oldName = '';
+            row.style.cssText = 'display:flex; align-items:center; gap:6px; padding:4px; border-radius:6px;';
+            row.innerHTML = `
+                <input type="text" value="" placeholder="새 세션 이름 입력" class="sess-name-input" style="flex:1; padding:8px; margin-bottom:0; border:1px solid var(--sub-bg); border-radius:6px; font-size:0.9rem; background:#fff; color:#111;">
+                <span class="drag-handle" title="드래그하여 순서 변경">⋮⋮</span>
+                <button type="button" class="btn" style="background:#d9534f; width:auto; padding:8px 12px; min-height:auto; font-size:0.85rem;" onclick="this.closest('.session-row-item').remove()">삭제</button>
+            `;
+            container.appendChild(row);
+            initSortableList(container, '.session-row-item', null);
+        }
+
+        function savePageSetting() {
+            const pageName = document.getElementById('targetPageKey').value;
+            const rows = document.querySelectorAll('.session-row-item');
+            let newFolders = [];
+            let folderMapping = {};
+
+            for (let row of rows) {
+                let oldName = row.dataset.oldName;
+                let inputVal = row.querySelector('.sess-name-input').value.trim();
+                if (!inputVal) continue;
+                if (newFolders.includes(inputVal)) {
+                    alert(`세션 이름이 중복됩니다: ${inputVal}`);
+                    return;
+                }
+                newFolders.push(inputVal);
+                if (oldName) folderMapping[oldName] = inputVal;
+            }
+
+            if (pageName === 'Memo') {
+                memoFolders = newFolders;
+                localStorage.setItem('memoFolders', JSON.stringify(memoFolders));
+                memos.forEach(m => {
+                    if (folderMapping[m.folder]) m.folder = folderMapping[m.folder];
+                });
+                localStorage.setItem('memos', JSON.stringify(memos));
+            } else {
+                hobbyFolders[pageName] = newFolders;
+                localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
+                hobbyPosts.forEach(p => {
+                    if (p.page === pageName && folderMapping[p.folder]) p.folder = folderMapping[p.folder];
+                });
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+
+                const newName = document.getElementById('editPageName').value.trim();
+                const newBg = document.getElementById('editPageBg').value;
+                const newAccent = document.getElementById('editPageAccent').value;
+
+                if(!newName) return alert('아카이브 이름을 입력해 주세요.');
+                if(pageName !== newName && themes[newName]) return alert('이미 존재하는 이름입니다.');
+
+                if(pageName !== newName) {
+                    themes[newName] = themes[pageName];
+                    delete themes[pageName];
+                    hobbyFolders[newName] = hobbyFolders[pageName] || [];
+                    delete hobbyFolders[pageName];
+                    hobbyPosts.forEach(p => { if(p.page === pageName) p.page = newName; });
+                    
+                    const idx = archiveOrder.indexOf(pageName);
+                    if (idx !== -1) archiveOrder[idx] = newName;
+                    localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+                }
+
+                themes[newName].bg = newBg;
+                themes[newName].accent = newAccent;
+                localStorage.setItem('themes', JSON.stringify(themes));
+                localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                if(currentTab === pageName) currentTab = newName;
+            }
+
+            toggleSettingModal(false);
+            renderSidebar();
+            setTheme(currentTab);
+            render();
+        }
+
+        function togglePinItem(id, type) {
+            let targetList = type === 'memo' ? memos : hobbyPosts;
+            let target = targetList.find(item => item.id == id);
+            if(target) {
+                target.pinned = !target.pinned;
+                if(type === 'memo') {
+                    localStorage.setItem('memos', JSON.stringify(memos));
+                } else {
+                    localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                }
+            }
+            render();
+        }
+
+        function toggleTypeSelectModal(open) {
+            document.getElementById('typeSelectModal').classList.toggle('open', open);
+        }
+        function selectPostType(type) {
+            toggleTypeSelectModal(false);
+            if (type === 'note') {
+                toggleModal(true);
+            } else {
+                toggleCheckModal(true);
+            }
+        }
+
+        function toggleCheckModal(open, editId = null) {
+            const modal = document.getElementById('checkModal');
+            if(open) {
+                let folders = (currentTab === 'Memo') ? memoFolders : (hobbyFolders[currentTab] || []);
+                let folderSelect = document.getElementById('checkModalFolder');
+                folderSelect.innerHTML = `<option value="미분류">미분류</option>` + folders.map(f => `<option value="${f}">${f}</option>`).join('');
+                
+                document.getElementById('checkModalHeaderTitle').innerText = (currentTab === 'Memo') ? '새 체크리스트 작성' : `${currentTab} 체크리스트 작성`;
+                const container = document.getElementById('checkItemsContainer');
+                container.innerHTML = `<label style="font-size: 0.85rem; display: block;">체크리스트 항목들</label>`;
+
+                if(editId) {
+                    document.getElementById('editCheckTargetId').value = editId;
+                    let targetList = (currentTab === 'Memo') ? memos : hobbyPosts;
+                    let target = targetList.find(i => i.id == editId);
+                    if(target) {
+                        folderSelect.value = target.folder || '미분류';
+                        document.getElementById('checkModalTitle').value = target.title || '';
+                        let items = target.checkItems || [];
+                        items.forEach(it => addCheckInputRow(it.text, it.checked));
+                    }
+                    if(container.querySelectorAll('.check-input-row').length === 0) addCheckInputRow('');
+                    document.getElementById('checkModalHeaderTitle').innerText = '체크리스트 수정';
+                } else {
+                    document.getElementById('editCheckTargetId').value = '';
+                    document.getElementById('checkModalTitle').value = '';
+                    folderSelect.value = '미분류';
+                    addCheckInputRow('');
+                    addCheckInputRow('');
+                }
+                modal.classList.add('open');
+            } else {
+                modal.classList.remove('open');
+            }
+        }
+
+        function addCheckInputRow(text = '', checked = false) {
+            const container = document.getElementById('checkItemsContainer');
+            const row = document.createElement('div');
+            row.className = 'check-input-row';
+            row.style.display = 'flex';
+            row.style.gap = '6px';
+            row.style.alignItems = 'center';
+            row.innerHTML = `
+                <input type="checkbox" class="check-row-status" ${checked ? 'checked' : ''} style="width:20px;height:20px;cursor:pointer;">
+                <input type="text" class="check-row-text" placeholder="항목 내용 입력" value="${text}" style="flex:1; padding:8px; margin-bottom:0; border:1px solid var(--sub-bg); border-radius:6px;">
+                <button type="button" class="btn" style="background:#d9534f; width:auto; padding:8px 12px; min-height:auto; font-size:0.8rem;" onclick="this.closest('.check-input-row').remove()">삭제</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function saveChecklistPost() {
+            const editId = document.getElementById('editCheckTargetId').value;
+            const folder = document.getElementById('checkModalFolder').value || '미분류';
+            const title = document.getElementById('checkModalTitle').value.trim();
+            
+            if(!title) {
+                alert('체크리스트 제목을 입력해 주세요.');
+                return;
+            }
+
+            const rows = document.querySelectorAll('.check-input-row');
+            let checkItems = [];
+            rows.forEach(r => {
+                const txt = r.querySelector('.check-row-text').value.trim();
+                const chk = r.querySelector('.check-row-status').checked;
+                if(txt) {
+                    checkItems.push({ text: txt, checked: chk });
+                }
+            });
+
+            checkItems.sort((a, b) => (a.checked === b.checked)? 0 : a.checked? 1 : -1);
+
+            if(currentTab === 'Memo') {
+                if(editId) {
+                    let target = memos.find(m => m.id == editId);
+                    if(target) {
+                        target.folder = folder;
+                        target.title = title;
+                        target.checkItems = checkItems;
+                    }
+                } else {
+                    memos.unshift({
+                        id: Date.now(),
+                        type: 'checklist',
+                        folder,
+                        title,
+                        checkItems,
+                        date: new Date().toISOString().slice(0,10),
+                        favorite: false,
+                        pinned: false
+                    });
+                }
+                localStorage.setItem('memos', JSON.stringify(memos));
+            } else {
+                if(editId) {
+                    let target = hobbyPosts.find(p => p.id == editId);
+                    if(target) {
+                        target.folder = folder;
+                        target.title = title;
+                        target.checkItems = checkItems;
+                    }
+                } else {
+                    hobbyPosts.unshift({
+                        id: Date.now(),
+                        page: currentTab,
+                        type: 'checklist',
+                        folder,
+                        title,
+                        checkItems,
+                        date: new Date().toISOString().slice(0,10),
+                        favorite: false,
+                        pinned: false
+                    });
+                }
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            }
+
+            toggleCheckModal(false);
+            render();
+        }
+
+        function toggleCheckItemState(postId, itemIndex) {
+            let targetList = (currentTab === 'Memo') ? memos : hobbyPosts;
+            let post = targetList.find(p => p.id == postId);
+            if(post && post.checkItems && post.checkItems[itemIndex]) {
+                post.checkItems[itemIndex].checked = !post.checkItems[itemIndex].checked;
+                post.checkItems.sort((a, b) => (a.checked === b.checked)? 0 : a.checked? 1 : -1);
+
+                if(currentTab === 'Memo') {
+                    localStorage.setItem('memos', JSON.stringify(memos));
+                } else {
+                    localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                }
+                render();
+            }
+        }
+
+        function addMediaInputRow(val = '', isExistingData = false, fileType = 'image') {
+            const container = document.getElementById('mediaInputsContainer');
+            const row = document.createElement('div');
+            row.className = 'media-input-row';
+            const uniqueId = 'file-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+            const hasContent = val.trim() !== '';
+
+            let displayVal = val;
+            let lockedAttr = '';
+            let lockedClass = '';
+            if (isExistingData && (val.startsWith('data:') || val.startsWith('blob:') || val.startsWith('file:'))) {
+                displayVal = '첨부된 미디어 파일';
+                lockedAttr = 'readonly';
+                lockedClass = 'locked';
+                row.dataset.existingData = val;
+                row.dataset.fileType = fileType;
+            }
+
+            row.innerHTML = `
+                <div class="unified-input-box ${lockedClass}">
+                    <input type="text" class="modal-media-url" placeholder="사진/움짤 파일 선택 또는 링크(URL)" value="${displayVal}" ${lockedAttr} style="margin-bottom:0;">
+                    <label for="${uniqueId}" class="file-select-label">파일 선택</label>
+                    <input type="file" id="${uniqueId}" class="modal-media-file" accept="image/*,.gif" style="display: none;" onchange="handleFileSelect(this)">
+                </div>
+                <button type="button" class="remove-row-btn" style="display: ${hasContent ? 'inline-block' : 'none'};" onclick="removeMediaRow(this)">삭제</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function handleFileSelect(input) {
+            const row = input.closest('.media-input-row');
+            const box = row.querySelector('.unified-input-box');
+            const textInput = row.querySelector('.modal-media-url');
+            const removeBtn = row.querySelector('.remove-row-btn');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const blobUrl = URL.createObjectURL(file);
+                row.dataset.existingData = blobUrl;
+                row.dataset.fileType = 'image';
+
+                textInput.value = file.name;
+                textInput.readOnly = true;
+                box.classList.add('locked');
+                removeBtn.style.display = 'inline-block';
+
+                const rows = document.querySelectorAll('.media-input-row');
+                if (rows[rows.length - 1] === row) {
+                    addMediaInputRow();
+                }
+            }
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('modal-media-url') && !e.target.readOnly) {
+                const row = e.target.closest('.media-input-row');
+                const removeBtn = row.querySelector('.remove-row-btn');
+                const val = e.target.value.trim();
+                const hasText = val !== '';
+                removeBtn.style.display = hasText ? 'inline-block' : 'none';
+
+                if (val.startsWith('http://') || val.startsWith('https://')) {
+                    row.dataset.fileType = 'link';
+                } else {
+                    row.dataset.fileType = 'image';
+                }
+
+                const container = document.getElementById('mediaInputsContainer');
+                const rows = container.querySelectorAll('.media-input-row');
+                if (rows[rows.length - 1] === row && hasText) {
+                    addMediaInputRow();
+                }
+            }
+        });
+
+        function removeMediaRow(btn) {
+            const row = btn.closest('.media-input-row');
+            const container = document.getElementById('mediaInputsContainer');
+            const rows = container.querySelectorAll('.media-input-row');
+
+            if (rows.length > 1) {
+                row.remove();
+            } else {
+                const box = row.querySelector('.unified-input-box');
+                const textInput = row.querySelector('.modal-media-url');
+                const fileInput = row.querySelector('.modal-media-file');
+                textInput.value = '';
+                textInput.readOnly = false;
+                box.classList.remove('locked');
+                delete row.dataset.existingData;
+                delete row.dataset.fileType;
+                if (fileInput) fileInput.value = '';
+                btn.style.display = 'none';
+            }
+
+            const updatedRows = container.querySelectorAll('.media-input-row');
+            const lastRow = updatedRows[updatedRows.length - 1];
+            const lastText = lastRow.querySelector('.modal-media-url').value.trim();
+            if (lastText !== '') {
+                addMediaInputRow();
+            }
+        }
+
+        function handleEditItem(id) {
+            let targetList = (currentTab === 'Memo') ? memos : hobbyPosts;
+            let target = targetList.find(item => item.id == id);
+            if (!target) return;
+            if (target.type === 'checklist') {
+                toggleCheckModal(true, id);
+            } else {
+                toggleModal(true, id);
+            }
+        }
+
+        function toggleModal(open, editId = null) {
+            const modal = document.getElementById('postModal');
+            if(open) {
+                let folders = (currentTab === 'Memo') ? memoFolders : (hobbyFolders[currentTab] || []);
+                let folderSelect = document.getElementById('modalFolder');
+                
+                folderSelect.innerHTML = `<option value="미분류">미분류</option>` + folders.map(f => `<option value="${f}">${f}</option>`).join('');
+                
+                document.getElementById('modalHeaderTitle').innerText = (currentTab === 'Memo') ? '새 노트 작성' : `${currentTab} 노트 작성`;
+                
+                const container = document.getElementById('mediaInputsContainer');
+                container.innerHTML = `<label style="font-size: 0.85rem; display: block; margin-bottom: 6px;">사진 / GIF 첨부</label>`;
+
+                if (editId) {
+                    document.getElementById('editTargetId').value = editId;
+                    let targetList = (currentTab === 'Memo') ? memos : hobbyPosts;
+                    let target = targetList.find(item => item.id == editId);
+                    if (target) {
+                        folderSelect.value = target.folder || '미분류';
+                        document.getElementById('modalTitle').value = target.title || '';
+                        document.getElementById('modalContent').value = target.content || target.thought || '';
+                        
+                        let mediaList = target.mediaObjects || (target.images ? target.images.map(url => ({ url, type: 'image' })) : []);
+                        let linksList = target.links || [];
+                        
+                        mediaList.forEach(m => addMediaInputRow(m.url, true, m.type));
+                        linksList.forEach(l => addMediaInputRow(l, true, 'link'));
+                    }
+                    addMediaInputRow();
+                    document.getElementById('modalHeaderTitle').innerText = '노트 수정';
+                } else {
+                    document.getElementById('editTargetId').value = '';
+                    document.getElementById('modalTitle').value = '';
+                    document.getElementById('modalContent').value = '';
+                    folderSelect.value = '미분류';
+                    addMediaInputRow();
+                }
+
+                modal.classList.add('open');
+            } else {
+                modal.classList.remove('open');
+            }
+        }
+
+        async function savePost() {
+            const editId = document.getElementById('editTargetId').value;
+            const folder = document.getElementById('modalFolder').value || '미분류';
+            const title = document.getElementById('modalTitle').value.trim();
+            const content = document.getElementById('modalContent').value.trim();
+            
+            if(!title && !content) {
+                alert('제목이나 내용 중 최소한 하나는 입력해 주세요.');
+                return;
+            }
+
+            const rows = Array.from(document.querySelectorAll('.media-input-row'));
+            const collectedMediaObjects = [];
+            const collectedLinks = [];
+
+            for (let row of rows) {
+                const textInput = row.querySelector('.modal-media-url');
+                let urlVal = '';
+                let fType = row.dataset.fileType || 'image';
+
+                if (row.dataset.existingData) {
+                    urlVal = row.dataset.existingData;
+                } else {
+                    urlVal = textInput.value.trim();
+                    if (urlVal.startsWith('http://') || urlVal.startsWith('https://')) {
+                        fType = 'link';
+                    }
+                }
+
+                if (urlVal) {
+                    if (fType === 'link') {
+                        collectedLinks.push(urlVal);
+                    } else {
+                        collectedMediaObjects.push({ url: urlVal, type: fType });
+                    }
+                }
+            }
+
+            if (currentTab === 'Memo') {
+                if (editId) {
+                    let target = memos.find(m => m.id == editId);
+                    if (target) {
+                        target.type = 'note';
+                        target.folder = folder;
+                        target.title = title;
+                        target.content = content;
+                        target.mediaObjects = collectedMediaObjects;
+                        target.images = collectedMediaObjects.map(m => m.url);
+                        target.links = collectedLinks;
+                    }
+                } else {
+                    memos.unshift({ 
+                        id: Date.now(), 
+                        type: 'note',
+                        folder, 
+                        title, 
+                        content, 
+                        mediaObjects: collectedMediaObjects,
+                        images: collectedMediaObjects.map(m => m.url),
+                        links: collectedLinks,
+                        date: new Date().toISOString().slice(0,10), 
+                        favorite: false,
+                        pinned: false
+                    });
+                }
+                localStorage.setItem('memos', JSON.stringify(memos));
+            } else {
+                if (editId) {
+                    let target = hobbyPosts.find(p => p.id == editId);
+                    if (target) {
+                        target.type = 'note';
+                        target.folder = folder;
+                        target.title = title;
+                        target.thought = content;
+                        target.mediaObjects = collectedMediaObjects;
+                        target.images = collectedMediaObjects.map(m => m.url);
+                        target.links = collectedLinks;
+                    }
+                } else {
+                    hobbyPosts.unshift({ 
+                        id: Date.now(), 
+                        page: currentTab, 
+                        type: 'note',
+                        folder, 
+                        title, 
+                        thought: content, 
+                        mediaObjects: collectedMediaObjects,
+                        images: collectedMediaObjects.map(m => m.url),
+                        links: collectedLinks,
+                        date: new Date().toISOString().slice(0,10), 
+                        favorite: false,
+                        pinned: false
+                    });
+                }
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            }
+
+            toggleModal(false);
+            render();
+        }
+
+        function toggleFavorite(id, type) {
+            if (type === 'memo') {
+                let target = memos.find(m => m.id == id);
+                if (target) target.favorite = !target.favorite;
+                localStorage.setItem('memos', JSON.stringify(memos));
+            } else {
+                let target = hobbyPosts.find(p => p.id == id);
+                if (target) target.favorite = !target.favorite;
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            }
+            render();
+        }
+
+        function deleteItem(id, type) {
+            if(!confirm('정말 삭제하시겠습니까?')) return;
+            if(type === 'memo') {
+                memos = memos.filter(m => m.id != id);
+                localStorage.setItem('memos', JSON.stringify(memos));
+            } else {
+                hobbyPosts = hobbyPosts.filter(p => p.id != id);
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            }
+            render();
+        }
+
+        function toggleBatchMode() {
+            isBatchMode = !isBatchMode;
+            if (!isBatchMode) {
+                selectedItemIds.clear();
+            }
+            render();
+        }
+
+        function toggleItemSelection(id) {
+            if (selectedItemIds.has(id)) {
+                selectedItemIds.delete(id);
+            } else {
+                selectedItemIds.add(id);
+            }
+            updateBatchDeleteBar();
+        }
+
+        function toggleSelectAll(idsArray) {
+            if (selectedItemIds.size === idsArray.length) {
+                selectedItemIds.clear();
+            } else {
+                idsArray.forEach(id => selectedItemIds.add(id));
+            }
+            render();
+        }
+
+        function updateBatchDeleteBar() {
+            const countEl = document.getElementById('selectedCount');
+            if (countEl) countEl.innerText = selectedItemIds.size;
+        }
+
+        function deleteSelectedItems() {
+            if (selectedItemIds.size === 0) return;
+            if (!confirm(`선택한 ${selectedItemIds.size}개의 항목을 정말 삭제하시겠습니까?`)) return;
+
+            if (currentTab === 'Memo') {
+                memos = memos.filter(m => !selectedItemIds.has(m.id));
+                localStorage.setItem('memos', JSON.stringify(memos));
+            } else {
+                hobbyPosts = hobbyPosts.filter(p => !selectedItemIds.has(p.id));
+                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            }
+            selectedItemIds.clear();
+            isBatchMode = false;
+            render();
+        }
+
+        function closeAllMenus() {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active-card'));
+        }
+
+        function toggleMenu(id) {
+            const sidebar = document.getElementById('appSidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                document.body.classList.remove('sidebar-open');
+                return;
+            }
+
+            const menu = document.getElementById(`menu-${id}`);
+            const isOpen = menu.classList.contains('show');
+            closeAllMenus();
+            if (!isOpen && menu) {
+                menu.classList.add('show');
+                const card = menu.closest('.card');
+                if (card) card.classList.add('active-card');
+            }
+        }
+
+        function checkContentHeight() {
+            document.querySelectorAll('.card-content-box').forEach(box => {
+                const textEl = box.querySelector('.card-text');
+                const btnEl = box.querySelector('.expand-btn');
+                if (textEl && btnEl) {
+                    if (textEl.scrollHeight > textEl.clientHeight || textEl.innerText.split('\n').length > 3 || textEl.offsetHeight >= 65) {
+                        btnEl.style.display = 'inline-flex';
+                    } else {
+                        btnEl.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function toggleExpand(id) {
+            const textEl = document.getElementById(`text-${id}`);
+            const btnEl = document.getElementById(`btn-${id}`);
+            textEl.classList.toggle('expanded');
+            if (textEl.classList.contains('expanded')) {
+                btnEl.innerHTML = '▲ 접기';
+            } else {
+                btnEl.innerHTML = '▼ 더보기';
+            }
+        }
+
+        function openMediaModal(src) {
+            const wrapper = document.getElementById('modalZoomWrapper');
+            wrapper.innerHTML = `<img src="${src}" alt="확대 이미지">`;
+            document.getElementById('imageModal').classList.add('open');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('open');
+            document.getElementById('modalZoomWrapper').innerHTML = '';
+        }
+
+        function toggleSearchBox() {
+            const sidebar = document.getElementById('appSidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                document.body.classList.remove('sidebar-open');
+                return;
+            }
+
+            const box = document.getElementById('searchInputBox');
+            box.classList.toggle('open');
+            if (box.classList.contains('open')) {
+                document.getElementById('searchInput').focus();
+            } else {
+                searchQuery = '';
+                document.getElementById('searchInput').value = '';
+                render();
+            }
+        }
+
+        function handleSearchInput(e) {
+            searchQuery = e.target.value.trim().toLowerCase();
+            render();
+        }
+
+        window.onclick = function(event) {
+            const sidebar = document.getElementById('appSidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                document.body.classList.remove('sidebar-open');
+                return;
+            }
+
+            if (!event.target.matches('.dots-btn') && !event.target.closest('.dropdown-menu')) {
+                closeAllMenus();
+            }
+        }
+
+        function linkifyText(text) {
+            if (!text) return '';
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
+        }
+
+        function render() {
+            const main = document.getElementById('mainContent');
+            let folders = (currentTab === 'Memo') ? memoFolders : (hobbyFolders[currentTab] || []);
+
+            let tabsHtml = `<div class="session-tabs">
+                <div class="session-tab ${currentSession === '전체' ? 'active' : ''}" onclick="currentSession='전체'; render();">전체</div>
+                <div class="session-tab ${currentSession === '즐겨찾기' ? 'active' : ''}" onclick="currentSession='즐겨찾기'; render();">${TAB_STAR_SVG} 즐겨찾기</div>
+                <div class="session-tab ${currentSession === '미분류' ? 'active' : ''}" onclick="currentSession='미분류'; render();">미분류</div>`;
+            for(let f of folders) {
+                let isAct = currentSession === f ? 'active' : '';
+                tabsHtml += `<div class="session-tab ${isAct}" onclick="currentSession='${f}'; render();">${f}</div>`;
+            }
+            tabsHtml += `</div>`;
+
+            let pageTitle = (currentTab === 'Memo') ? 'Memo' : `${currentTab} Archive`;
+
+            let dataSource = (currentTab === 'Memo') ? memos : hobbyPosts.filter(p => p.page === currentTab);
+
+            if (currentSession === '즐겨찾기') {
+                dataSource = dataSource.filter(item => item.favorite);
+            } else if (currentSession !== '전체') {
+                dataSource = dataSource.filter(item => (item.folder || '미분류') === currentSession);
+            }
+
+            if (searchQuery) {
+                dataSource = dataSource.filter(item => 
+                    (item.title && item.title.toLowerCase().includes(searchQuery)) || 
+                    (item.content && item.content.toLowerCase().includes(searchQuery)) ||
+                    (item.thought && item.thought.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            dataSource.sort((a, b) => {
+                if (a.pinned && !b.pinned) return -1;
+                if (!a.pinned && b.pinned) return 1;
+                return b.id - a.id;
+            });
+
+            const currentDataSourceIds = dataSource.map(item => item.id);
+            let allSelected = currentDataSourceIds.length > 0 && currentDataSourceIds.every(id => selectedItemIds.has(id));
+
+            let batchBarHtml = `
+                <div class="batch-delete-bar ${isBatchMode ? 'show' : ''}" id="batchDeleteBar">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.9rem; font-weight:bold;">총 <span id="selectedCount">${selectedItemIds.size}</span>개 선택됨</span>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn" style="background:#555; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick='toggleSelectAll(${JSON.stringify(currentDataSourceIds)})'>${allSelected ? '전체 해제' : '전체 선택'}</button>
+                        <button class="btn" style="background:#d9534f; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="deleteSelectedItems()">선택 삭제</button>
+                        <button class="btn" style="background:#888; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="toggleBatchMode()">취소</button>
+                    </div>
+                </div>
+            `;
+
+            let cards = dataSource.map(item => {
+                let isChecked = selectedItemIds.has(item.id) ? 'checked' : '';
+                let displayFolder = item.folder || '미분류';
+                let badgeHtml = `<span style="background: var(--accent-color); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 6px;">${displayFolder}</span>`;
+                
+                let pinBadge = item.pinned ? `<span style="display:inline-flex; align-items:center; border:1px solid currentColor; border-radius:3px; padding:1px 4px; font-size:0.75rem; margin-left:6px; opacity:0.8;" title="상단고정됨">📌 PIN</span>` : '';
+                
+                let titleHtml = item.title ? `<h3 style="margin-top: 8px;">${item.title}</h3>` : '';
+                
+                let bodyHtml = '';
+                if (item.type === 'checklist' && item.checkItems) {
+                    let checkListInner = item.checkItems.map((ci, idx) => `
+                        <div class="checklist-item">
+                            <input type="checkbox" ${ci.checked ? 'checked' : ''} onclick="toggleCheckItemState(${item.id}, ${idx})">
+                            <span class="${ci.checked ? 'checked' : ''}">${ci.text}</span>
+                        </div>
+                    `).join('');
+                    bodyHtml = `<div class="checklist-container">${checkListInner}</div>`;
+                } else {
+                    let textVal = item.content || item.thought || '';
+                    bodyHtml = textVal ? `
+                        <div class="card-content-box">
+                            <div class="card-text" id="text-${item.id}">${linkifyText(textVal)}</div>
+                            <button class="expand-btn" id="btn-${item.id}" onclick="toggleExpand(${item.id})">▼ 더보기</button>
+                        </div>
+                    ` : '';
+                }
+
+                let linksList = item.links || [];
+                let linksHtml = linksList.map(link => `
+                    <a href="${link}" target="_blank" rel="noopener noreferrer" class="link-card-box">
+                        <span>🔗 ${link}</span>
+                        <span style="font-size:0.8rem; opacity:0.7;">방문하기 ↗</span>
+                    </a>
+                `).join('');
+
+                let mediaList = item.mediaObjects || (item.images ? item.images.map(url => ({ url, type: 'image' })) : []);
+                let mediaHtml = mediaList.map(media => `
+                    <div class="media-container" onclick="openMediaModal('${media.url}')">
+                        <img src="${media.url}" alt="이미지" onerror="this.style.display='none'">
+                        <span class="zoom-badge">⤢</span>
+                    </div>
+                `).join('');
+
+                let itemTypeKey = (currentTab === 'Memo') ? 'memo' : 'hobby';
+                let pinText = item.pinned ? '상단고정 해제' : '상단고정';
+
+                return `
+                    <div class="card ${isBatchMode ? 'batch-mode' : ''}">
+                        <div class="card-top-actions">
+                            <input type="checkbox" class="card-checkbox" ${isChecked} onclick="toggleItemSelection(${item.id})" title="선택">
+                            <button class="star-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite(${item.id}, '${itemTypeKey}')">${CUTE_STAR_SVG}</button>
+                            <div class="sidebar-dots-container">
+                                <button type="button" class="dots-btn" ontouchstart="event.stopPropagation(); event.preventDefault(); toggleMenu(${item.id});" onclick="event.stopPropagation(); event.preventDefault(); toggleMenu(${item.id});">⋮</button>
+                                <div class="dropdown-menu" id="menu-${item.id}">
+                                    <div class="dropdown-item" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); handleEditItem(${item.id});" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); handleEditItem(${item.id});">수정</div>
+                                    <div class="dropdown-item" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); togglePinItem(${item.id}, '${itemTypeKey}');" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); togglePinItem(${item.id}, '${itemTypeKey}');">${pinText}</div>
+                                    <div class="dropdown-item" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); toggleBatchMode();" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); toggleBatchMode();">다중 선택</div>
+                                    <div class="dropdown-item delete" ontouchstart="event.stopPropagation(); event.preventDefault(); closeAllMenus(); deleteItem(${item.id}, '${itemTypeKey}');" onclick="event.stopPropagation(); event.preventDefault(); closeAllMenus(); deleteItem(${item.id}, '${itemTypeKey}');">삭제</div>
+                                </div>
+                            </div>
+                        </div>
+                        ${badgeHtml}
+                        <span style="font-size: 0.8rem; opacity: 0.7;">${item.date}${pinBadge}</span>
+                        ${titleHtml}
+                        ${bodyHtml}
+                        ${linksList.length > 0 ? `<div class="link-wrapper">${linksHtml}</div>` : ''}
+                        ${mediaList.length > 0 ? `<div class="media-wrapper">${mediaHtml}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            main.innerHTML = `
+                <div class="header-bar">
+                    <h1>${pageTitle}</h1>
+                    <div class="search-container">
+                        <div class="search-input-box" id="searchInputBox">
+                            <input type="text" id="searchInput" placeholder="제목/내용 검색..." oninput="handleSearchInput(event)" value="${searchQuery}">
+                        </div>
+                        <button class="search-btn" onclick="toggleSearchBox()" title="검색">${SEARCH_ICON_SVG}</button>
+                    </div>
+                </div>
+                ${tabsHtml}
+                ${batchBarHtml}
+                <div>${cards || '<p>검색 결과가 없거나 작성된 기록이 없습니다.</p>'}</div>
+                <button class="fab" onclick="toggleTypeSelectModal(true)">+</button>
+            `;
+
+            if (searchQuery) {
+                const box = document.getElementById('searchInputBox');
+                const input = document.getElementById('searchInput');
+                if (box && input) {
+                    box.classList.add('open');
+                    input.focus();
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+            }
+
+            setTimeout(checkContentHeight, 50);
+        }
+
+        renderSidebar();
+        render();
     </script>
 </body>
 </html>
