@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0062)file:///C:/Users/User/Downloads/gemini-code-1795072357772.html -->
+<!-- saved from url=(0062)file:///C:/Users/User/Downloads/gemini-code-1795085144374.html -->
 <html lang="ko" style="--bg-color: #F7F4EE; --card-color: #FFFFFF; --accent-color: #3B6E8C; --text-color: #1E3A5F; --sub-bg: #EAE3D2;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The B-Archive</title>
+    <script src="./index_files/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #F7F4EE;
@@ -617,13 +618,13 @@
         .media-container {
             position: relative;
             display: inline-block;
-            width: 110px;
-            height: 110px;
+            width: 130px;
+            height: 130px;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--sub-bg);
             cursor: pointer;
-            background: #000;
+            background: #111827;
             flex-shrink: 0;
         }
 
@@ -631,6 +632,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
 
         .zoom-badge {
@@ -982,7 +984,7 @@
                 <button type="button" class="fab" onclick="toggleTypeSelectModal(true)">+</button>
             </main>
 
-    <div class="dropdown-menu" id="globalCardDropdown" onclick="event.stopPropagation()" style="top: 124px; left: 102.4px; right: auto;"></div>
+    <div class="dropdown-menu" id="globalCardDropdown" onclick="event.stopPropagation()" style="top: 194px; left: 102.4px; right: auto;"></div>
 
     <div class="modal" id="typeSelectModal">
         <div class="modal-content" style="max-width: 350px; text-align: center;">
@@ -997,18 +999,23 @@
 
     <div class="modal" id="postModal">
         <div class="modal-content">
-            <h3 id="modalHeaderTitle">새 노트 작성</h3>
+            <h3 id="modalHeaderTitle">MCR 노트 작성</h3>
             <div id="sessionSelectArea" style="margin-bottom: 10px;">
-                <select id="modalFolder" style="width: 100%;"></select>
+                <select id="modalFolder" style="width: 100%;"><option value="미분류">미분류</option></select>
             </div>
             <input type="text" id="modalTitle" placeholder="제목">
             <textarea id="modalContent" placeholder="내용 또는 링크(URL) 입력..."></textarea>
             
-            <div id="mediaInputsContainer">
-                <label style="font-size: 0.85rem; display: block; margin-bottom: 6px;">사진 / GIF 첨부</label>
-            </div>
+            <div id="mediaInputsContainer"><label style="font-size: 0.85rem; display: block; margin-bottom: 6px;">사진 / GIF 첨부</label><div class="media-input-row">
+                <div class="unified-input-box ">
+                    <input type="text" class="modal-media-url" placeholder="사진/움짤 파일 선택 또는 링크(URL)" value="" style="margin-bottom:0;">
+                    <label for="file-1795085240793-8272" class="file-select-label">파일 선택</label>
+                    <input type="file" id="file-1795085240793-8272" class="modal-media-file" accept="image/*,.gif" style="display: none;" onchange="handleFileSelect(this)">
+                </div>
+                <button type="button" class="remove-row-btn" style="display: none;" onclick="removeMediaRow(this)">삭제</button>
+            </div></div>
 
-            <input type="hidden" id="editTargetId">
+            <input type="hidden" id="editTargetId" value="">
             <div class="modal-buttons">
                 <button type="button" class="btn" style="background-color: #888;" onclick="toggleModal(false)">취소</button>
                 <button type="button" class="btn" onclick="savePost()">저장하기</button>
@@ -1076,9 +1083,7 @@
             
             <div style="margin-top: 15px; border-top: 1px solid var(--sub-bg); padding-top: 14px;">
                 <label style="font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px;">세션 관리 (드래그하여 순서 변경)</label>
-                <div id="sessionManageList" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-bottom: 12px;">
-                
-            </div>
+                <div id="sessionManageList" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-bottom: 12px;"></div>
                 <button type="button" class="btn" style="background-color: #555; font-size: 0.88rem; padding: 8px;" onclick="addSessionRowInModal()">+ 세션 추가</button>
             </div>
 
@@ -1095,7 +1100,7 @@
             <h3 id="pwModalTitle">새 비밀번호 4자리 설정</h3>
             <input type="password" id="pwInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
             <input type="hidden" id="pwActionType" value="setlock">
-            <input type="hidden" id="pwTargetId" value="1795071743874">
+            <input type="hidden" id="pwTargetId" value="f99faeea-a0af-4287-942f-e1bcff612060">
             <div class="modal-buttons">
                 <button type="button" class="btn" style="background-color: #888;" onclick="togglePasswordModal(false)">취소</button>
                 <button type="button" class="btn" onclick="submitPasswordModal()">확인</button>
@@ -1108,6 +1113,42 @@
     </div>
 
     <script>
+        const SUPABASE_URL = 'https://hacuccfafgzocnbjhjip.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_xs1EKJ3uv1fcL4lZ3WwpHg_HFhGZDdI';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+        function safeLocalStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (err) {
+                if (key === 'hobbyPosts' || key === 'memos') {
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed)) {
+                            const lightweight = parsed.map(item => ({
+                                ...item,
+                                mediaObjects: [],
+                                images: [],
+                                image_url: null
+                            }));
+                            localStorage.setItem(key, JSON.stringify(lightweight));
+                        }
+                    } catch (_) {}
+                }
+            }
+        }
+
+        function safeLocalStorageGet(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (err) {
+                return null;
+            }
+        }
+
+        let archiveIdMap = {};
+        let isDbReady = false;
+
         let currentTab = 'Memo';
         let currentSession = '전체';
         let searchQuery = '';
@@ -1125,7 +1166,7 @@
         const LOCK_OUTLINE_SVG = `<span class="lock-outline-icon" title="잠긴 메모"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" ry="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>`;
         const UNLOCK_OUTLINE_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2" ry="2"></rect><path d="M8 11V7a4 4 0 0 1 7.33-2"></path></svg>`;
 
-        let themes = JSON.parse(localStorage.getItem('themes')) || {
+        let themes = JSON.parse(safeLocalStorageGet('themes')) || {
             'Memo': { bg: '#F7F4EE', card: '#FFFFFF', accent: '#3B6E8C', text: '#1E3A5F', sub: '#EAE3D2' }
         };
         if (themes['memo']) {
@@ -1135,19 +1176,419 @@
         delete themes['Marvel'];
         delete themes['MCR'];
 
-        let archiveOrder = JSON.parse(localStorage.getItem('archiveOrder')) || Object.keys(themes).filter(k => k !== 'Memo');
+        let archiveOrder = JSON.parse(safeLocalStorageGet('archiveOrder')) || Object.keys(themes).filter(k => k !== 'Memo');
         archiveOrder = archiveOrder.filter(k => k !== 'Marvel' && k !== 'MCR' && themes[k]);
-        localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
-        localStorage.setItem('themes', JSON.stringify(themes));
+        safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
+        safeLocalStorageSet('themes', JSON.stringify(themes));
 
-        let memos = JSON.parse(localStorage.getItem('memos')) || [
-            { id: 101, type: 'note', folder: '내 생각', title: '테스트 노트', content: '디테일 수정 완료!', mediaObjects: [], links: [], date: '2026-11-16', favorite: true, pinned: false, password: '' }
-        ];
-        
-        let hobbyPosts = JSON.parse(localStorage.getItem('hobbyPosts')) || [];
+        let memos = JSON.parse(safeLocalStorageGet('memos')) || [];
+        let hobbyPosts = JSON.parse(safeLocalStorageGet('hobbyPosts')) || [];
 
-        let memoFolders = JSON.parse(localStorage.getItem('memoFolders')) || ['개인정보', '내 생각', '꿈'];
-        let hobbyFolders = JSON.parse(localStorage.getItem('hobbyFolders')) || {};
+        let memoFolders = JSON.parse(safeLocalStorageGet('memoFolders')) || ['개인정보', '내 생각', '꿈'];
+        let hobbyFolders = JSON.parse(safeLocalStorageGet('hobbyFolders')) || {};
+
+        function getSortableTimestamp(item) {
+            if (item && item.created_at) {
+                const ms = Date.parse(String(item.created_at));
+                if (!Number.isNaN(ms)) return ms;
+            }
+            const numId = Number(item && item.id);
+            if (!Number.isNaN(numId) && numId > 0) return numId;
+            return 0;
+        }
+
+        function compareLatestFirst(a, b) {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+
+            const timeA = getSortableTimestamp(a);
+            const timeB = getSortableTimestamp(b);
+            if (timeB !== timeA) {
+                return timeB - timeA;
+            }
+
+            const numA = Number(a.id);
+            const numB = Number(b.id);
+            if (!Number.isNaN(numA) && !Number.isNaN(numB) && numB !== numA) {
+                return numB - numA;
+            }
+            return String(b.id).localeCompare(String(a.id));
+        }
+
+        function extractUrlsFromText(text) {
+            if (!text) return [];
+            const matches = text.match(/https?:\/\/[^\s"'<>]+/gi);
+            return matches ? [...new Set(matches)] : [];
+        }
+
+        function isImageUrl(url) {
+            if (!url || typeof url !== 'string') return false;
+            const trimmed = url.trim();
+            if (!trimmed) return false;
+            if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(trimmed)) return true;
+            if (trimmed.startsWith('blob:')) return true;
+            return /\.(png|jpe?g|gif|webp|bmp|svg|avif)(\?.*)?$/i.test(trimmed);
+        }
+
+        function parseStoredMediaField(rawVal) {
+            if (!rawVal) return [];
+            if (Array.isArray(rawVal)) {
+                return [...new Set(rawVal.map(s => String(s || '').trim()).filter(Boolean))];
+            }
+            const str = String(rawVal).trim();
+            if (!str) return [];
+
+            if (str.startsWith('[')) {
+                try {
+                    const parsed = JSON.parse(str);
+                    if (Array.isArray(parsed)) {
+                        return [...new Set(parsed.map(s => String(s || '').trim()).filter(Boolean))];
+                    }
+                } catch (_) {}
+            }
+
+            const result = [];
+            const dataUriRegex = /data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/gi;
+            let lastIndex = 0;
+            let match;
+            while ((match = dataUriRegex.exec(str)) !== null) {
+                const before = str.slice(lastIndex, match.index);
+                before.split(/[\n,]+/).forEach(part => {
+                    const cleaned = part.trim();
+                    if (cleaned) result.push(cleaned);
+                });
+                result.push(match[0].trim());
+                lastIndex = match.index + match[0].length;
+            }
+            const after = str.slice(lastIndex);
+            after.split(/[\n,]+/).forEach(part => {
+                const cleaned = part.trim();
+                if (cleaned) result.push(cleaned);
+            });
+
+            return [...new Set(result)];
+        }
+
+        function parseJsonArraySafe(rawVal, fallback = []) {
+            if (!rawVal) return fallback;
+            if (Array.isArray(rawVal)) return rawVal;
+            try {
+                const parsed = JSON.parse(String(rawVal));
+                return Array.isArray(parsed) ? parsed : fallback;
+            } catch (_) {
+                return fallback;
+            }
+        }
+
+        function classifyLinksAndImages(textContent, collectedMediaObjects = [], collectedLinks = []) {
+            const textUrls = extractUrlsFromText(textContent);
+            const imageSet = new Set();
+            const linkSet = new Set();
+
+            (collectedMediaObjects || []).forEach(m => {
+                if (!m || !m.url) return;
+                const u = String(m.url).trim();
+                if (!u) return;
+                if (m.type === 'image' || isImageUrl(u)) {
+                    imageSet.add(u);
+                } else if (u.startsWith('http://') || u.startsWith('https://')) {
+                    linkSet.add(u);
+                }
+            });
+
+            (collectedLinks || []).forEach(l => {
+                if (!l) return;
+                const u = String(l).trim();
+                if (!u) return;
+                if (isImageUrl(u)) {
+                    imageSet.add(u);
+                } else if (u.startsWith('http://') || u.startsWith('https://')) {
+                    linkSet.add(u);
+                }
+            });
+
+            textUrls.forEach(u => {
+                const cleanUrl = String(u).trim();
+                if (!cleanUrl) return;
+                if (isImageUrl(cleanUrl)) {
+                    imageSet.add(cleanUrl);
+                } else {
+                    linkSet.add(cleanUrl);
+                }
+            });
+
+            const imagesArray = [...imageSet];
+            const linksArray = [...linkSet];
+
+            return {
+                link_url: linksArray.length > 0 ? JSON.stringify(linksArray) : null,
+                image_url: imagesArray.length > 0 ? JSON.stringify(imagesArray) : null,
+                linksArray,
+                imagesArray
+            };
+        }
+
+        async function getOrCreateArchiveId(archiveName) {
+            if (archiveIdMap[archiveName]) {
+                return archiveIdMap[archiveName];
+            }
+            try {
+                const { data: existing, error: selErr } = await supabaseClient
+                    .from('archives')
+                    .select('id, Archive_name, is_deleted')
+                    .eq('Archive_name', archiveName)
+                    .eq('is_deleted', false)
+                    .limit(1);
+
+                if (!selErr && existing && existing.length > 0) {
+                    archiveIdMap[archiveName] = existing[0].id;
+                    return existing[0].id;
+                }
+
+                const t = themes[archiveName] || themes['Memo'];
+                const defaultFolders = archiveName === 'Memo' ? memoFolders : (hobbyFolders[archiveName] || []);
+                const { data: inserted, error: insErr } = await supabaseClient
+                    .from('archives')
+                    .insert([{
+                        Archive_name: archiveName,
+                        bg_color: t ? t.bg : '#F7F4EE',
+                        accent_color: t ? t.accent : '#3B6E8C',
+                        folders: defaultFolders,
+                        sort_order: archiveName === 'Memo' ? -1 : archiveOrder.indexOf(archiveName),
+                        is_deleted: false
+                    }])
+                    .select()
+                    .single();
+
+                if (!insErr && inserted) {
+                    archiveIdMap[archiveName] = inserted.id;
+                    return inserted.id;
+                }
+            } catch (err) {
+                console.error('아카이브 ID 조회/생성 오류:', err);
+            }
+            return null;
+        }
+
+        async function syncArchivesFromSupabase() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('archives')
+                    .select('*')
+                    .eq('is_deleted', false)
+                    .order('sort_order', { ascending: true })
+                    .order('id', { ascending: true });
+
+                if (error) {
+                    console.error('archives 조회 오류:', error);
+                    return;
+                }
+
+                archiveIdMap = {};
+                const dbNames = [];
+
+                (data || []).forEach(row => {
+                    const name = row.Archive_name;
+                    if (!name) return;
+                    archiveIdMap[name] = row.id;
+
+                    const rowFolders = parseJsonArraySafe(row.folders, null);
+
+                    if (name === 'Memo') {
+                        if (Array.isArray(rowFolders)) {
+                            memoFolders = rowFolders;
+                        }
+                    } else {
+                        dbNames.push(name);
+                        if (!themes[name]) {
+                            themes[name] = {
+                                bg: row.bg_color || '#1E293B',
+                                card: 'rgba(255,255,255,0.08)',
+                                accent: row.accent_color || '#38BDF8',
+                                text: '#FFFFFF',
+                                sub: 'rgba(255,255,255,0.15)'
+                            };
+                        } else {
+                            if (row.bg_color) themes[name].bg = row.bg_color;
+                            if (row.accent_color) themes[name].accent = row.accent_color;
+                        }
+                        if (Array.isArray(rowFolders)) {
+                            hobbyFolders[name] = rowFolders;
+                        } else if (!hobbyFolders[name]) {
+                            hobbyFolders[name] = [];
+                        }
+                    }
+                });
+
+                Object.keys(themes).forEach(k => {
+                    if (k !== 'Memo' && !archiveIdMap[k]) {
+                        delete themes[k];
+                        delete hobbyFolders[k];
+                    }
+                });
+
+                archiveOrder = dbNames.filter(n => themes[n]);
+                safeLocalStorageSet('themes', JSON.stringify(themes));
+                safeLocalStorageSet('memoFolders', JSON.stringify(memoFolders));
+                safeLocalStorageSet('hobbyFolders', JSON.stringify(hobbyFolders));
+                safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
+
+                if (!archiveIdMap['Memo']) {
+                    await getOrCreateArchiveId('Memo');
+                }
+
+                if (currentTab !== 'Memo' && !archiveIdMap[currentTab]) {
+                    currentTab = 'Memo';
+                    setTheme('Memo');
+                }
+            } catch (err) {
+                console.error('Supabase 아카이브 동기화 예외:', err);
+            }
+        }
+
+        function mapMemoRowToUiItem(row, reverseArchiveMap, existingUiMap = {}) {
+            const archName = reverseArchiveMap[row.archive_id] || 'Memo';
+            const dbLinks = parseStoredMediaField(row.link_url);
+            const dbImages = parseStoredMediaField(row.image_url);
+            const prevItem = existingUiMap[String(row.id)];
+
+            const finalImages = dbImages.length > 0
+                ? dbImages
+                : (prevItem && Array.isArray(prevItem.images) ? [...new Set(prevItem.images)] : []);
+
+            const finalLinks = dbLinks.length > 0
+                ? dbLinks
+                : (prevItem && Array.isArray(prevItem.links) ? [...new Set(prevItem.links)] : []);
+
+            const createdIso = row.created_at || (prevItem && prevItem.created_at) || new Date().toISOString();
+            const createdDate = String(createdIso).slice(0, 10);
+
+            const resolvedFolder = (row.folder !== undefined && row.folder !== null && row.folder !== '')
+                ? row.folder
+                : (prevItem && prevItem.folder ? prevItem.folder : '미분류');
+
+            const resolvedType = (row.type !== undefined && row.type !== null && row.type !== '')
+                ? row.type
+                : (prevItem && prevItem.type ? prevItem.type : 'note');
+
+            const resolvedFavorite = (typeof row.favorite === 'boolean')
+                ? row.favorite
+                : (prevItem ? !!prevItem.favorite : false);
+
+            const resolvedPinned = (typeof row.pinned === 'boolean')
+                ? row.pinned
+                : (prevItem ? !!prevItem.pinned : false);
+
+            const resolvedPassword = (row.password !== undefined && row.password !== null)
+                ? String(row.password)
+                : (prevItem && prevItem.password ? prevItem.password : '');
+
+            const parsedCheckItems = parseJsonArraySafe(row.check_items, null);
+            const resolvedCheckItems = Array.isArray(parsedCheckItems) && parsedCheckItems.length > 0
+                ? parsedCheckItems
+                : (prevItem && Array.isArray(prevItem.checkItems) ? prevItem.checkItems : (resolvedType === 'checklist' ? [] : undefined));
+
+            return {
+                id: row.id,
+                archive_id: row.archive_id,
+                page: archName,
+                type: resolvedType,
+                folder: resolvedFolder,
+                title: row.title || '',
+                content: row.content || '',
+                thought: row.content || '',
+                mediaObjects: finalImages.map(url => ({ url, type: 'image' })),
+                images: finalImages,
+                links: finalLinks,
+                link_url: row.link_url || null,
+                image_url: row.image_url || null,
+                date: createdDate,
+                created_at: createdIso,
+                favorite: resolvedFavorite,
+                pinned: resolvedPinned,
+                password: resolvedPassword,
+                checkItems: resolvedCheckItems,
+                is_deleted: !!row.is_deleted
+            };
+        }
+
+        async function syncMemosFromSupabase() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('memos')
+                    .select('*')
+                    .eq('is_deleted', false)
+                    .order('pinned', { ascending: false })
+                    .order('created_at', { ascending: false })
+                    .order('id', { ascending: false });
+
+                if (error) {
+                    console.error('memos 조회 오류:', error);
+                    return;
+                }
+
+                const existingMap = {};
+                [...memos, ...hobbyPosts].forEach(it => {
+                    if (it && it.id !== undefined) {
+                        existingMap[String(it.id)] = it;
+                    }
+                });
+
+                const reverseMap = {};
+                Object.entries(archiveIdMap).forEach(([name, id]) => {
+                    reverseMap[id] = name;
+                });
+
+                const memoArchId = archiveIdMap['Memo'];
+                const loadedMemos = [];
+                const loadedHobby = [];
+
+                (data || []).forEach(row => {
+                    const uiItem = mapMemoRowToUiItem(row, reverseMap, existingMap);
+                    if (!row.archive_id || row.archive_id === memoArchId || uiItem.page === 'Memo') {
+                        loadedMemos.push(uiItem);
+                    } else {
+                        loadedHobby.push(uiItem);
+                    }
+                });
+
+                loadedMemos.sort(compareLatestFirst);
+                loadedHobby.sort(compareLatestFirst);
+
+                memos = loadedMemos;
+                hobbyPosts = loadedHobby;
+                safeLocalStorageSet('memos', JSON.stringify(memos));
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
+            } catch (err) {
+                console.error('Supabase 메모 동기화 예외:', err);
+            }
+        }
+
+        async function persistArchiveOrderToSupabase() {
+            try {
+                for (let i = 0; i < archiveOrder.length; i++) {
+                    const name = archiveOrder[i];
+                    const archId = archiveIdMap[name];
+                    if (archId) {
+                        await supabaseClient
+                            .from('archives')
+                            .update({ sort_order: i })
+                            .eq('id', archId);
+                    }
+                }
+            } catch (err) {
+                console.error('아카이브 순서 DB 저장 오류:', err);
+            }
+        }
+
+        async function initSupabaseApp() {
+            await syncArchivesFromSupabase();
+            await syncMemosFromSupabase();
+            isDbReady = true;
+            setTheme(currentTab);
+            renderSidebar();
+            render();
+        }
 
         function toggleMobileSidebar(e) {
             if (e) e.stopPropagation();
@@ -1182,7 +1623,7 @@
             document.documentElement.style.setProperty('--sub-bg', t.sub);
         }
 
-        function switchTab(tab, element, bg, accent, text) {
+        async function switchTab(tab, element, bg, accent, text) {
             closeAllMenus();
             currentTab = tab;
             currentSession = '전체';
@@ -1195,14 +1636,15 @@
 
             if (!themes[tab] && bg) {
                 themes[tab] = { bg: bg, card: 'rgba(255,255,255,0.08)', accent: accent, text: text, sub: 'rgba(255,255,255,0.15)' };
-                localStorage.setItem('themes', JSON.stringify(themes));
+                safeLocalStorageSet('themes', JSON.stringify(themes));
                 if (!archiveOrder.includes(tab)) {
                     archiveOrder.push(tab);
-                    localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+                    safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
                 }
             }
             setTheme(tab);
             renderSidebar();
+            await syncMemosFromSupabase();
             render();
 
             if (window.innerWidth <= 768) {
@@ -1366,11 +1808,11 @@
             const lockMenuText = isLocked ? '잠금 해제' : '잠금 설정';
 
             menu.innerHTML = `
-                <div class="dropdown-item" onclick="triggerMenuAction(() => handleEditItem(${itemId}))">수정</div>
-                <div class="dropdown-item" onclick="triggerMenuAction(() => promptLockSetup(${itemId}))">${lockMenuText}</div>
-                <div class="dropdown-item" onclick="triggerMenuAction(() => togglePinItem(${itemId}, '${itemTypeKey}'))">${pinText}</div>
+                <div class="dropdown-item" onclick="triggerMenuAction(() => handleEditItem('${itemId}'))">수정</div>
+                <div class="dropdown-item" onclick="triggerMenuAction(() => promptLockSetup('${itemId}'))">${lockMenuText}</div>
+                <div class="dropdown-item" onclick="triggerMenuAction(() => togglePinItem('${itemId}', '${itemTypeKey}'))">${pinText}</div>
                 <div class="dropdown-item" onclick="triggerMenuAction(() => toggleBatchMode())">다중 선택</div>
-                <div class="dropdown-item delete" onclick="triggerMenuAction(() => deleteItem(${itemId}, '${itemTypeKey}'))">삭제</div>
+                <div class="dropdown-item delete" onclick="triggerMenuAction(() => deleteItem('${itemId}', '${itemTypeKey}'))">삭제</div>
             `;
 
             const triggerEl = e && e.currentTarget ? e.currentTarget : null;
@@ -1456,10 +1898,11 @@
             });
             menuList.innerHTML = html;
 
-            initSortableList(menuList, '.draggable-archive', () => {
+            initSortableList(menuList, '.draggable-archive', async () => {
                 const updatedOrder = [...menuList.querySelectorAll('.draggable-archive')].map(el => el.dataset.page);
                 archiveOrder = updatedOrder;
-                localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+                safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
+                await persistArchiveOrderToSupabase();
             });
         }
 
@@ -1471,42 +1914,102 @@
             document.getElementById('createArchiveModal').classList.toggle('open', open);
         }
 
-        function createNewArchiveConfirm() {
+        async function createNewArchiveConfirm() {
             const nameInput = document.getElementById('newArchName');
             const name = nameInput.value.trim();
             const bg = document.getElementById('newArchBg').value;
             const accent = document.getElementById('newArchAccent').value;
             
             if (!name) return alert('아카이브 이름을 입력해 주세요.');
-            if (themes[name]) return alert('이미 존재하는 아카이브입니다.');
+            if (themes[name] || archiveIdMap[name]) return alert('이미 존재하는 아카이브입니다.');
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('archives')
+                    .insert([{
+                        Archive_name: name,
+                        bg_color: bg,
+                        accent_color: accent,
+                        folders: [],
+                        sort_order: archiveOrder.length,
+                        is_deleted: false
+                    }])
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('아카이브 생성 오류:', error);
+                    alert('Supabase 아카이브 생성에 실패했습니다: ' + error.message);
+                    return;
+                }
+
+                if (data) {
+                    archiveIdMap[name] = data.id;
+                }
+            } catch (err) {
+                console.error('아카이브 생성 예외:', err);
+                alert('아카이브 생성 중 오류가 발생했습니다.');
+                return;
+            }
 
             themes[name] = { bg: bg, card: 'rgba(255,255,255,0.08)', accent: accent, text: '#FFFFFF', sub: 'rgba(255,255,255,0.15)' };
-            localStorage.setItem('themes', JSON.stringify(themes));
+            safeLocalStorageSet('themes', JSON.stringify(themes));
 
             archiveOrder.push(name);
-            localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+            safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
 
             if(!hobbyFolders[name]) {
                 hobbyFolders[name] = [];
-                localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
+                safeLocalStorageSet('hobbyFolders', JSON.stringify(hobbyFolders));
             }
 
             toggleCreateArchiveModal(false);
-            switchTab(name, null);
+            await switchTab(name, null);
         }
 
-        function deletePage(name) {
+        async function deletePage(name) {
             if(!confirm(`"${name}" 아카이브를 삭제하시겠습니까? 속한 내용도 모두 삭제됩니다.`)) return;
+
+            const targetArchId = archiveIdMap[name];
+            try {
+                if (targetArchId) {
+                    const { error: archErr } = await supabaseClient
+                        .from('archives')
+                        .update({ is_deleted: true })
+                        .eq('id', targetArchId);
+
+                    if (archErr) {
+                        console.error('아카이브 삭제 플래그 업데이트 오류:', archErr);
+                        alert('아카이브 삭제에 실패했습니다: ' + archErr.message);
+                        return;
+                    }
+
+                    await supabaseClient
+                        .from('memos')
+                        .update({ is_deleted: true })
+                        .eq('archive_id', targetArchId);
+                } else {
+                    await supabaseClient
+                        .from('archives')
+                        .update({ is_deleted: true })
+                        .eq('Archive_name', name);
+                }
+                delete archiveIdMap[name];
+            } catch (err) {
+                console.error('아카이브 삭제 예외:', err);
+            }
+
             delete themes[name];
             delete hobbyFolders[name];
             archiveOrder = archiveOrder.filter(item => item !== name);
-            localStorage.setItem('themes', JSON.stringify(themes));
-            localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
-            localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+            safeLocalStorageSet('themes', JSON.stringify(themes));
+            safeLocalStorageSet('hobbyFolders', JSON.stringify(hobbyFolders));
+            safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
             hobbyPosts = hobbyPosts.filter(p => p.page !== name);
-            localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
+            await persistArchiveOrderToSupabase();
             
-            switchTab('Memo', document.querySelector('.menu-item'));
+            await switchTab('Memo', document.querySelector('.menu-item'));
         }
 
         function openSettingModal(name) {
@@ -1568,11 +2071,14 @@
             initSortableList(container, '.session-row-item', null);
         }
 
-        function savePageSetting() {
+        async function savePageSetting() {
             const pageName = document.getElementById('targetPageKey').value;
             const rows = document.querySelectorAll('.session-row-item');
             let newFolders = [];
             let folderMapping = {};
+            let removedFolders = [];
+
+            const prevFolders = (pageName === 'Memo') ? [...memoFolders] : [...(hobbyFolders[pageName] || [])];
 
             for (let row of rows) {
                 let oldName = row.dataset.oldName;
@@ -1586,21 +2092,49 @@
                 if (oldName) folderMapping[oldName] = inputVal;
             }
 
+            prevFolders.forEach(oldF => {
+                if (!folderMapping[oldF]) {
+                    removedFolders.push(oldF);
+                }
+            });
+
             if (pageName === 'Memo') {
+                const memoArchId = await getOrCreateArchiveId('Memo');
+                if (memoArchId) {
+                    const { error } = await supabaseClient
+                        .from('archives')
+                        .update({ folders: newFolders })
+                        .eq('id', memoArchId);
+                    if (error) console.error('Memo 세션 DB 저장 오류:', error);
+                }
+
+                for (const [oldF, newF] of Object.entries(folderMapping)) {
+                    if (oldF !== newF && memoArchId) {
+                        await supabaseClient
+                            .from('memos')
+                            .update({ folder: newF })
+                            .eq('archive_id', memoArchId)
+                            .eq('folder', oldF);
+                    }
+                }
+                for (const remF of removedFolders) {
+                    if (memoArchId) {
+                        await supabaseClient
+                            .from('memos')
+                            .update({ folder: '미분류' })
+                            .eq('archive_id', memoArchId)
+                            .eq('folder', remF);
+                    }
+                }
+
                 memoFolders = newFolders;
-                localStorage.setItem('memoFolders', JSON.stringify(memoFolders));
+                safeLocalStorageSet('memoFolders', JSON.stringify(memoFolders));
                 memos.forEach(m => {
                     if (folderMapping[m.folder]) m.folder = folderMapping[m.folder];
+                    else if (removedFolders.includes(m.folder)) m.folder = '미분류';
                 });
-                localStorage.setItem('memos', JSON.stringify(memos));
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
-                hobbyFolders[pageName] = newFolders;
-                localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
-                hobbyPosts.forEach(p => {
-                    if (p.page === pageName && folderMapping[p.folder]) p.folder = folderMapping[p.folder];
-                });
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
-
                 const newName = document.getElementById('editPageName').value.trim();
                 const newBg = document.getElementById('editPageBg').value;
                 const newAccent = document.getElementById('editPageAccent').value;
@@ -1608,42 +2142,113 @@
                 if(!newName) return alert('아카이브 이름을 입력해 주세요.');
                 if(pageName !== newName && themes[newName]) return alert('이미 존재하는 이름입니다.');
 
+                const archId = archiveIdMap[pageName];
+                if (archId) {
+                    const { error } = await supabaseClient
+                        .from('archives')
+                        .update({
+                            Archive_name: newName,
+                            bg_color: newBg,
+                            accent_color: newAccent,
+                            folders: newFolders
+                        })
+                        .eq('id', archId);
+                    if (error) {
+                        console.error('아카이브 수정 오류:', error);
+                    }
+
+                    for (const [oldF, newF] of Object.entries(folderMapping)) {
+                        if (oldF !== newF) {
+                            await supabaseClient
+                                .from('memos')
+                                .update({ folder: newF })
+                                .eq('archive_id', archId)
+                                .eq('folder', oldF);
+                        }
+                    }
+                    for (const remF of removedFolders) {
+                        await supabaseClient
+                            .from('memos')
+                            .update({ folder: '미분류' })
+                            .eq('archive_id', archId)
+                            .eq('folder', remF);
+                    }
+                }
+
+                hobbyFolders[pageName] = newFolders;
+                hobbyPosts.forEach(p => {
+                    if (p.page === pageName) {
+                        if (folderMapping[p.folder]) p.folder = folderMapping[p.folder];
+                        else if (removedFolders.includes(p.folder)) p.folder = '미분류';
+                    }
+                });
+
                 if(pageName !== newName) {
                     themes[newName] = themes[pageName];
                     delete themes[pageName];
                     hobbyFolders[newName] = hobbyFolders[pageName] || [];
                     delete hobbyFolders[pageName];
                     hobbyPosts.forEach(p => { if(p.page === pageName) p.page = newName; });
+                    if (archiveIdMap[pageName]) {
+                        archiveIdMap[newName] = archiveIdMap[pageName];
+                        delete archiveIdMap[pageName];
+                    }
                     
                     const idx = archiveOrder.indexOf(pageName);
                     if (idx !== -1) archiveOrder[idx] = newName;
-                    localStorage.setItem('archiveOrder', JSON.stringify(archiveOrder));
+                    safeLocalStorageSet('archiveOrder', JSON.stringify(archiveOrder));
                 }
 
                 themes[newName].bg = newBg;
                 themes[newName].accent = newAccent;
-                localStorage.setItem('themes', JSON.stringify(themes));
-                localStorage.setItem('hobbyFolders', JSON.stringify(hobbyFolders));
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                safeLocalStorageSet('themes', JSON.stringify(themes));
+                safeLocalStorageSet('hobbyFolders', JSON.stringify(hobbyFolders));
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
                 if(currentTab === pageName) currentTab = newName;
+            }
+
+            if (currentSession !== '전체' && currentSession !== '즐겨찾기' && currentSession !== '미분류') {
+                if (folderMapping[currentSession]) {
+                    currentSession = folderMapping[currentSession];
+                } else if (!newFolders.includes(currentSession)) {
+                    currentSession = '전체';
+                }
             }
 
             toggleSettingModal(false);
             renderSidebar();
             setTheme(currentTab);
+            await syncMemosFromSupabase();
             render();
         }
 
-        function togglePinItem(id, type) {
+        async function togglePinItem(id, type) {
             let targetList = type === 'memo' ? memos : hobbyPosts;
             let target = targetList.find(item => item.id == id);
-            if(target) {
-                target.pinned = !target.pinned;
-                if(type === 'memo') {
-                    localStorage.setItem('memos', JSON.stringify(memos));
-                } else {
-                    localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+            if (!target) return;
+
+            const nextPinned = !target.pinned;
+            target.pinned = nextPinned;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('memos')
+                    .update({ pinned: nextPinned })
+                    .eq('id', id);
+                if (error) {
+                    console.error('상단고정 DB 저장 오류:', error);
+                    alert('상단고정 저장에 실패했습니다: ' + error.message);
                 }
+            } catch (err) {
+                console.error('상단고정 DB 예외:', err);
+            }
+
+            if (type === 'memo') {
+                memos.sort(compareLatestFirst);
+                safeLocalStorageSet('memos', JSON.stringify(memos));
+            } else {
+                hobbyPosts.sort(compareLatestFirst);
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
             render();
         }
@@ -1712,7 +2317,7 @@
             container.appendChild(row);
         }
 
-        function saveChecklistPost() {
+        async function saveChecklistPost() {
             const editId = document.getElementById('editCheckTargetId').value;
             const folder = document.getElementById('checkModalFolder').value || '미분류';
             const title = document.getElementById('checkModalTitle').value.trim();
@@ -1734,6 +2339,51 @@
 
             checkItems.sort((a, b) => (a.checked === b.checked)? 0 : a.checked? 1 : -1);
 
+            const contentSummary = checkItems.map(ci => `${ci.checked ? '[x]' : '[ ]'} ${ci.text}`).join('\n');
+            const classified = classifyLinksAndImages(contentSummary, [], []);
+            const archiveId = await getOrCreateArchiveId(currentTab);
+            const nowIso = new Date().toISOString();
+
+            try {
+                if (editId) {
+                    const { error } = await supabaseClient
+                        .from('memos')
+                        .update({
+                            archive_id: archiveId,
+                            folder: folder,
+                            type: 'checklist',
+                            title: title,
+                            content: contentSummary,
+                            check_items: checkItems,
+                            link_url: classified.link_url,
+                            image_url: classified.image_url
+                        })
+                        .eq('id', editId);
+                    if (error) console.error('체크리스트 Supabase 수정 오류:', error);
+                } else {
+                    const { error } = await supabaseClient
+                        .from('memos')
+                        .insert([{
+                            archive_id: archiveId,
+                            folder: folder,
+                            type: 'checklist',
+                            title: title,
+                            content: contentSummary,
+                            check_items: checkItems,
+                            favorite: false,
+                            pinned: false,
+                            password: '',
+                            created_at: nowIso,
+                            link_url: classified.link_url,
+                            image_url: classified.image_url,
+                            is_deleted: false
+                        }]);
+                    if (error) console.error('체크리스트 Supabase 저장 오류:', error);
+                }
+            } catch (err) {
+                console.error('체크리스트 DB 처리 예외:', err);
+            }
+
             if(currentTab === 'Memo') {
                 if(editId) {
                     let target = memos.find(m => m.id == editId);
@@ -1749,13 +2399,15 @@
                         folder,
                         title,
                         checkItems,
-                        date: new Date().toISOString().slice(0,10),
+                        date: nowIso.slice(0,10),
+                        created_at: nowIso,
                         favorite: false,
                         pinned: false,
                         password: ''
                     });
                 }
-                localStorage.setItem('memos', JSON.stringify(memos));
+                memos.sort(compareLatestFirst);
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
                 if(editId) {
                     let target = hobbyPosts.find(p => p.id == editId);
@@ -1772,30 +2424,48 @@
                         folder,
                         title,
                         checkItems,
-                        date: new Date().toISOString().slice(0,10),
+                        date: nowIso.slice(0,10),
+                        created_at: nowIso,
                         favorite: false,
                         pinned: false,
                         password: ''
                     });
                 }
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                hobbyPosts.sort(compareLatestFirst);
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
 
             toggleCheckModal(false);
+            await syncMemosFromSupabase();
             render();
         }
 
-        function toggleCheckItemState(postId, itemIndex) {
+        async function toggleCheckItemState(postId, itemIndex) {
             let targetList = (currentTab === 'Memo') ? memos : hobbyPosts;
             let post = targetList.find(p => p.id == postId);
             if(post && post.checkItems && post.checkItems[itemIndex]) {
                 post.checkItems[itemIndex].checked = !post.checkItems[itemIndex].checked;
                 post.checkItems.sort((a, b) => (a.checked === b.checked)? 0 : a.checked? 1 : -1);
 
+                const contentSummary = post.checkItems.map(ci => `${ci.checked ? '[x]' : '[ ]'} ${ci.text}`).join('\n');
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('memos')
+                        .update({
+                            check_items: post.checkItems,
+                            content: contentSummary
+                        })
+                        .eq('id', postId);
+                    if (error) console.error('체크 상태 DB 저장 오류:', error);
+                } catch (err) {
+                    console.error('체크 상태 DB 예외:', err);
+                }
+
                 if(currentTab === 'Memo') {
-                    localStorage.setItem('memos', JSON.stringify(memos));
+                    safeLocalStorageSet('memos', JSON.stringify(memos));
                 } else {
-                    localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                    safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
                 }
                 render();
             }
@@ -1806,17 +2476,19 @@
             const row = document.createElement('div');
             row.className = 'media-input-row';
             const uniqueId = 'file-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
-            const hasContent = val.trim() !== '';
+            const hasContent = !!(val && String(val).trim() !== '');
 
-            let displayVal = val;
+            let displayVal = val || '';
             let lockedAttr = '';
             let lockedClass = '';
-            if (isExistingData && (val.startsWith('data:') || val.startsWith('blob:') || val.startsWith('file:'))) {
+            if (isExistingData && (String(val).startsWith('data:') || String(val).startsWith('blob:') || String(val).startsWith('file:'))) {
                 displayVal = '첨부된 미디어 파일';
                 lockedAttr = 'readonly';
                 lockedClass = 'locked';
                 row.dataset.existingData = val;
-                row.dataset.fileType = fileType;
+                row.dataset.fileType = fileType || 'image';
+            } else if (hasContent) {
+                row.dataset.fileType = fileType || (isImageUrl(val) ? 'image' : 'link');
             }
 
             row.innerHTML = `
@@ -1830,7 +2502,20 @@
             container.appendChild(row);
         }
 
-        function handleFileSelect(input) {
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    resolve(evt.target.result || '');
+                };
+                reader.onerror = function(err) {
+                    reject(err);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleFileSelect(input) {
             const row = input.closest('.media-input-row');
             const box = row.querySelector('.unified-input-box');
             const textInput = row.querySelector('.modal-media-url');
@@ -1838,9 +2523,14 @@
 
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                const blobUrl = URL.createObjectURL(file);
-                row.dataset.existingData = blobUrl;
-                row.dataset.fileType = 'image';
+                try {
+                    const dataUrl = await readFileAsDataUrl(file);
+                    row.dataset.existingData = dataUrl;
+                    row.dataset.fileType = 'image';
+                } catch (_) {
+                    row.dataset.existingData = URL.createObjectURL(file);
+                    row.dataset.fileType = 'image';
+                }
 
                 textInput.value = file.name;
                 textInput.readOnly = true;
@@ -1862,7 +2552,9 @@
                 const hasText = val !== '';
                 removeBtn.style.display = hasText ? 'inline-block' : 'none';
 
-                if (val.startsWith('http://') || val.startsWith('https://')) {
+                if (isImageUrl(val)) {
+                    row.dataset.fileType = 'image';
+                } else if (val.startsWith('http://') || val.startsWith('https://')) {
                     row.dataset.fileType = 'link';
                 } else {
                     row.dataset.fileType = 'image';
@@ -1954,11 +2646,11 @@
                         document.getElementById('modalTitle').value = target.title || '';
                         document.getElementById('modalContent').value = target.content || target.thought || '';
                         
-                        let mediaList = target.mediaObjects || (target.images ? target.images.map(url => ({ url, type: 'image' })) : []);
-                        let linksList = target.links || [];
+                        const mediaList = getItemImages(target);
+                        const linksList = getItemLinks(target);
                         
-                        mediaList.forEach(m => addMediaInputRow(m.url, true, m.type));
-                        linksList.forEach(l => addMediaInputRow(l, true, 'link'));
+                        mediaList.forEach(url => addMediaInputRow(url, true, 'image'));
+                        linksList.forEach(l => addMediaInputRow(l, false, 'link'));
                     }
                     addMediaInputRow();
                     document.getElementById('modalHeaderTitle').innerText = '노트 수정';
@@ -1988,120 +2680,234 @@
             }
 
             const rows = Array.from(document.querySelectorAll('.media-input-row'));
-            const collectedMediaObjects = [];
-            const collectedLinks = [];
+            const rawMediaInputs = [];
+            const rawLinkInputs = [];
+            const seenRowKeys = new Set();
 
             for (let row of rows) {
+                const fileInput = row.querySelector('.modal-media-file');
                 const textInput = row.querySelector('.modal-media-url');
                 let urlVal = '';
                 let fType = row.dataset.fileType || 'image';
 
                 if (row.dataset.existingData) {
                     urlVal = row.dataset.existingData;
-                } else {
-                    urlVal = textInput.value.trim();
-                    if (urlVal.startsWith('http://') || urlVal.startsWith('https://')) {
-                        fType = 'link';
+                } else if (fileInput && fileInput.files && fileInput.files[0]) {
+                    try {
+                        urlVal = await readFileAsDataUrl(fileInput.files[0]);
+                        fType = 'image';
+                    } catch (_) {
+                        urlVal = URL.createObjectURL(fileInput.files[0]);
+                        fType = 'image';
                     }
+                } else if (textInput) {
+                    urlVal = textInput.value.trim();
                 }
 
-                if (urlVal) {
-                    if (fType === 'link') {
-                        collectedLinks.push(urlVal);
-                    } else {
-                        collectedMediaObjects.push({ url: urlVal, type: fType });
-                    }
+                if (!urlVal) continue;
+                if (seenRowKeys.has(urlVal)) continue;
+                seenRowKeys.add(urlVal);
+
+                if (fType === 'image' || isImageUrl(urlVal)) {
+                    rawMediaInputs.push({ url: urlVal, type: 'image' });
+                } else if (urlVal.startsWith('http://') || urlVal.startsWith('https://')) {
+                    rawLinkInputs.push(urlVal);
+                } else {
+                    rawMediaInputs.push({ url: urlVal, type: fType });
                 }
             }
+
+            const classified = classifyLinksAndImages(content, rawMediaInputs, rawLinkInputs);
+            const collectedMediaObjects = classified.imagesArray.map(url => ({ url, type: 'image' }));
+            const collectedLinks = classified.linksArray;
+            const archiveId = await getOrCreateArchiveId(currentTab);
+            const nowIso = new Date().toISOString();
+
+            let savedRowData = null;
+
+            try {
+                if (editId) {
+                    const { data, error } = await supabaseClient
+                        .from('memos')
+                        .update({
+                            archive_id: archiveId,
+                            folder: folder,
+                            type: 'note',
+                            title: title,
+                            content: content,
+                            link_url: classified.link_url,
+                            image_url: classified.image_url
+                        })
+                        .eq('id', editId)
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error('메모 수정 오류:', error);
+                        alert('Supabase 메모 수정에 실패했습니다: ' + error.message);
+                        return;
+                    }
+                    savedRowData = data;
+                } else {
+                    const { data, error } = await supabaseClient
+                        .from('memos')
+                        .insert([{
+                            archive_id: archiveId,
+                            folder: folder,
+                            type: 'note',
+                            title: title,
+                            content: content,
+                            favorite: false,
+                            pinned: false,
+                            password: '',
+                            created_at: nowIso,
+                            link_url: classified.link_url,
+                            image_url: classified.image_url,
+                            is_deleted: false
+                        }])
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error('메모 저장 오류:', error);
+                        alert('Supabase 메모 저장에 실패했습니다: ' + error.message);
+                        return;
+                    }
+                    savedRowData = data;
+                }
+            } catch (err) {
+                console.error('메모 저장 예외:', err);
+                alert('메모 저장 중 오류가 발생했습니다.');
+                return;
+            }
+
+            const finalId = savedRowData && savedRowData.id ? savedRowData.id : (editId || Date.now());
+            const finalCreatedAt = (savedRowData && savedRowData.created_at) || nowIso;
+            const finalDate = String(finalCreatedAt).slice(0, 10);
+
+            const newOrUpdatedItem = {
+                id: finalId,
+                archive_id: archiveId,
+                page: currentTab,
+                type: 'note',
+                folder,
+                title,
+                content,
+                thought: content,
+                mediaObjects: collectedMediaObjects,
+                images: classified.imagesArray,
+                links: collectedLinks,
+                link_url: classified.link_url,
+                image_url: classified.image_url,
+                date: finalDate,
+                created_at: finalCreatedAt,
+                favorite: false,
+                pinned: false,
+                password: '',
+                is_deleted: false
+            };
 
             if (currentTab === 'Memo') {
                 if (editId) {
-                    let target = memos.find(m => m.id == editId);
-                    if (target) {
-                        target.type = 'note';
-                        target.folder = folder;
-                        target.title = title;
-                        target.content = content;
-                        target.mediaObjects = collectedMediaObjects;
-                        target.images = collectedMediaObjects.map(m => m.url);
-                        target.links = collectedLinks;
+                    const idx = memos.findIndex(m => m.id == editId || m.id == finalId);
+                    if (idx !== -1) {
+                        newOrUpdatedItem.favorite = !!memos[idx].favorite;
+                        newOrUpdatedItem.pinned = !!memos[idx].pinned;
+                        newOrUpdatedItem.password = memos[idx].password || '';
+                        newOrUpdatedItem.created_at = memos[idx].created_at || finalCreatedAt;
+                        memos[idx] = newOrUpdatedItem;
+                    } else {
+                        memos.unshift(newOrUpdatedItem);
                     }
                 } else {
-                    memos.unshift({ 
-                        id: Date.now(), 
-                        type: 'note',
-                        folder, 
-                        title, 
-                        content, 
-                        mediaObjects: collectedMediaObjects,
-                        images: collectedMediaObjects.map(m => m.url),
-                        links: collectedLinks,
-                        date: new Date().toISOString().slice(0,10), 
-                        favorite: false,
-                        pinned: false,
-                        password: ''
-                    });
+                    memos = memos.filter(m => m.id != finalId);
+                    memos.unshift(newOrUpdatedItem);
                 }
-                localStorage.setItem('memos', JSON.stringify(memos));
+                memos.sort(compareLatestFirst);
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
                 if (editId) {
-                    let target = hobbyPosts.find(p => p.id == editId);
-                    if (target) {
-                        target.type = 'note';
-                        target.folder = folder;
-                        target.title = title;
-                        target.thought = content;
-                        target.mediaObjects = collectedMediaObjects;
-                        target.images = collectedMediaObjects.map(m => m.url);
-                        target.links = collectedLinks;
+                    const idx = hobbyPosts.findIndex(p => p.id == editId || p.id == finalId);
+                    if (idx !== -1) {
+                        newOrUpdatedItem.favorite = !!hobbyPosts[idx].favorite;
+                        newOrUpdatedItem.pinned = !!hobbyPosts[idx].pinned;
+                        newOrUpdatedItem.password = hobbyPosts[idx].password || '';
+                        newOrUpdatedItem.created_at = hobbyPosts[idx].created_at || finalCreatedAt;
+                        hobbyPosts[idx] = newOrUpdatedItem;
+                    } else {
+                        hobbyPosts.unshift(newOrUpdatedItem);
                     }
                 } else {
-                    hobbyPosts.unshift({ 
-                        id: Date.now(), 
-                        page: currentTab, 
-                        type: 'note',
-                        folder, 
-                        title, 
-                        thought: content, 
-                        mediaObjects: collectedMediaObjects,
-                        images: collectedMediaObjects.map(m => m.url),
-                        links: collectedLinks,
-                        date: new Date().toISOString().slice(0,10), 
-                        favorite: false,
-                        pinned: false,
-                        password: ''
-                    });
+                    hobbyPosts = hobbyPosts.filter(p => p.id != finalId);
+                    hobbyPosts.unshift(newOrUpdatedItem);
                 }
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                hobbyPosts.sort(compareLatestFirst);
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
 
             toggleModal(false);
+            await syncMemosFromSupabase();
             render();
         }
 
-        function toggleFavorite(id, type) {
+        async function toggleFavorite(id, type) {
+            let targetList = type === 'memo' ? memos : hobbyPosts;
+            let target = targetList.find(m => m.id == id);
+            if (!target) return;
+
+            const nextFav = !target.favorite;
+            target.favorite = nextFav;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('memos')
+                    .update({ favorite: nextFav })
+                    .eq('id', id);
+                if (error) {
+                    console.error('즐겨찾기 DB 저장 오류:', error);
+                    alert('즐겨찾기 저장에 실패했습니다: ' + error.message);
+                }
+            } catch (err) {
+                console.error('즐겨찾기 DB 예외:', err);
+            }
+
             if (type === 'memo') {
-                let target = memos.find(m => m.id == id);
-                if (target) target.favorite = !target.favorite;
-                localStorage.setItem('memos', JSON.stringify(memos));
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
-                let target = hobbyPosts.find(p => p.id == id);
-                if (target) target.favorite = !target.favorite;
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
             render();
         }
 
-        function deleteItem(id, type) {
+        async function deleteItem(id, type) {
             if(!confirm('정말 삭제하시겠습니까?')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('memos')
+                    .update({ is_deleted: true })
+                    .eq('id', id);
+
+                if (error) {
+                    console.error('메모 삭제 플래그 업데이트 오류:', error);
+                    alert('Supabase 메모 삭제에 실패했습니다: ' + error.message);
+                    return;
+                }
+            } catch (err) {
+                console.error('메모 삭제 예외:', err);
+                alert('메모 삭제 중 오류가 발생했습니다.');
+                return;
+            }
+
             if(type === 'memo') {
                 memos = memos.filter(m => m.id != id);
-                localStorage.setItem('memos', JSON.stringify(memos));
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
                 hobbyPosts = hobbyPosts.filter(p => p.id != id);
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
             if(viewingDetailId == id) viewingDetailId = null;
+            await syncMemosFromSupabase();
             render();
         }
 
@@ -2154,7 +2960,26 @@
             }
         }
 
-        function submitPasswordModal() {
+        async function updatePasswordInSupabase(id, newPassword) {
+            try {
+                const { error } = await supabaseClient
+                    .from('memos')
+                    .update({ password: newPassword })
+                    .eq('id', id);
+                if (error) {
+                    console.error('비밀번호 DB 저장 오류:', error);
+                    alert('비밀번호 DB 저장에 실패했습니다: ' + error.message);
+                    return false;
+                }
+                return true;
+            } catch (err) {
+                console.error('비밀번호 DB 예외:', err);
+                alert('비밀번호 저장 중 오류가 발생했습니다.');
+                return false;
+            }
+        }
+
+        async function submitPasswordModal() {
             const val = document.getElementById('pwInput').value.trim();
             const action = document.getElementById('pwActionType').value;
             const id = document.getElementById('pwTargetId').value;
@@ -2178,6 +3003,8 @@
                 }
             } else if (action === 'unlock_clear') {
                 if (target.password === val) {
+                    const ok = await updatePasswordInSupabase(id, '');
+                    if (!ok) return;
                     target.password = '';
                     saveCurrentListStorage();
                     togglePasswordModal(false);
@@ -2194,6 +3021,8 @@
                     alert('비밀번호가 틀렸습니다.');
                 }
             } else if (action === 'setlock') {
+                const ok = await updatePasswordInSupabase(id, val);
+                if (!ok) return;
                 target.password = val;
                 saveCurrentListStorage();
                 togglePasswordModal(false);
@@ -2204,9 +3033,9 @@
 
         function saveCurrentListStorage() {
             if (currentTab === 'Memo') {
-                localStorage.setItem('memos', JSON.stringify(memos));
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
         }
 
@@ -2241,24 +3070,45 @@
             if (countEl) countEl.innerText = selectedItemIds.size;
         }
 
-        function deleteSelectedItems() {
+        async function deleteSelectedItems() {
             if (selectedItemIds.size === 0) return;
             if (!confirm(`선택한 ${selectedItemIds.size}개의 항목을 정말 삭제하시겠습니까?`)) return;
 
+            const idsToDelete = [...selectedItemIds];
+
+            try {
+                const { error } = await supabaseClient
+                    .from('memos')
+                    .update({ is_deleted: true })
+                    .in('id', idsToDelete);
+
+                if (error) {
+                    console.error('다중 메모 삭제 플래그 업데이트 오류:', error);
+                    alert('Supabase 메모 삭제에 실패했습니다: ' + error.message);
+                    return;
+                }
+            } catch (err) {
+                console.error('다중 메모 삭제 예외:', err);
+                alert('메모 삭제 중 오류가 발생했습니다.');
+                return;
+            }
+
             if (currentTab === 'Memo') {
                 memos = memos.filter(m => !selectedItemIds.has(m.id));
-                localStorage.setItem('memos', JSON.stringify(memos));
+                safeLocalStorageSet('memos', JSON.stringify(memos));
             } else {
                 hobbyPosts = hobbyPosts.filter(p => !selectedItemIds.has(p.id));
-                localStorage.setItem('hobbyPosts', JSON.stringify(hobbyPosts));
+                safeLocalStorageSet('hobbyPosts', JSON.stringify(hobbyPosts));
             }
             selectedItemIds.clear();
             isBatchMode = false;
             viewingDetailId = null;
+            await syncMemosFromSupabase();
             render();
         }
 
-        function openMediaModal(src) {
+        function openMediaModal(encodedSrc) {
+            const src = decodeURIComponent(encodedSrc);
             const wrapper = document.getElementById('modalZoomWrapper');
             wrapper.innerHTML = `<img src="${src}" alt="확대 이미지">`;
             document.getElementById('imageModal').classList.add('open');
@@ -2297,14 +3147,49 @@
             updateFilteredCardsOnly();
         }
 
+        function getItemImages(item) {
+            if (!item) return [];
+            const list = [];
+            if (Array.isArray(item.images)) {
+                item.images.forEach(u => {
+                    if (u && String(u).trim()) list.push(String(u).trim());
+                });
+            }
+            if (Array.isArray(item.mediaObjects)) {
+                item.mediaObjects.forEach(m => {
+                    if (m && m.url && String(m.url).trim()) list.push(String(m.url).trim());
+                });
+            }
+            if (item.image_url) {
+                parseStoredMediaField(item.image_url).forEach(u => {
+                    if (u && String(u).trim()) list.push(String(u).trim());
+                });
+            }
+            return [...new Set(list)];
+        }
+
+        function getItemLinks(item) {
+            if (!item) return [];
+            const list = [];
+            if (Array.isArray(item.links)) {
+                item.links.forEach(u => {
+                    if (u && String(u).trim()) list.push(String(u).trim());
+                });
+            }
+            if (item.link_url) {
+                parseStoredMediaField(item.link_url).forEach(u => {
+                    if (u && String(u).trim()) list.push(String(u).trim());
+                });
+            }
+            return [...new Set(list)];
+        }
+
         function hasPhotoAttached(item) {
-            if (Array.isArray(item.mediaObjects) && item.mediaObjects.length > 0) return true;
-            if (Array.isArray(item.images) && item.images.length > 0) return true;
-            return false;
+            return getItemImages(item).length > 0;
         }
 
         function hasLinkAttached(item) {
-            if (Array.isArray(item.links) && item.links.length > 0) return true;
+            if (getItemLinks(item).length > 0) return true;
             const combinedText = `${item.title || ''} ${item.content || ''} ${item.thought || ''}`;
             return /https?:\/\//i.test(combinedText);
         }
@@ -2332,6 +3217,7 @@
 
         function getFilteredDataSource() {
             let dataSource = (currentTab === 'Memo') ? memos : hobbyPosts.filter(p => p.page === currentTab);
+            dataSource = dataSource.filter(item => !item.is_deleted);
 
             if (currentSession === '즐겨찾기') {
                 dataSource = dataSource.filter(item => item.favorite);
@@ -2343,12 +3229,7 @@
                 dataSource = dataSource.filter(item => matchesSearchQuery(item, searchQuery));
             }
 
-            dataSource.sort((a, b) => {
-                if (a.pinned && !b.pinned) return -1;
-                if (!a.pinned && b.pinned) return 1;
-                return b.id - a.id;
-            });
-
+            dataSource.sort(compareLatestFirst);
             return dataSource;
         }
 
@@ -2370,12 +3251,12 @@
                 let itemTypeKey = (currentTab === 'Memo') ? 'memo' : 'hobby';
 
                 return `
-                    <div class="card ${isBatchMode ? 'batch-mode' : ''}" onclick="openCardClick(${item.id})">
+                    <div class="card ${isBatchMode ? 'batch-mode' : ''}" onclick="openCardClick('${item.id}')">
                         <div class="card-top-actions" onclick="event.stopPropagation()">
-                            <input type="checkbox" class="card-checkbox" ${isChecked} onclick="toggleItemSelection(${item.id})" title="선택">
-                            <button type="button" class="star-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite(${item.id}, '${itemTypeKey}')">${CUTE_STAR_SVG}</button>
+                            <input type="checkbox" class="card-checkbox" ${isChecked} onclick="toggleItemSelection('${item.id}')" title="선택">
+                            <button type="button" class="star-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}', '${itemTypeKey}')">${CUTE_STAR_SVG}</button>
                             <div class="sidebar-dots-container">
-                                <button type="button" class="dots-btn" onclick="openCardDropdown(event, ${item.id}, ${!!item.pinned})">⋮</button>
+                                <button type="button" class="dots-btn" onclick="openCardDropdown(event, '${item.id}', ${!!item.pinned})">⋮</button>
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; justify-content:space-between; padding-right:85px;">
@@ -2425,13 +3306,7 @@
         }
 
         function getMediaCount(item) {
-            if (Array.isArray(item.mediaObjects) && item.mediaObjects.length > 0) {
-                return item.mediaObjects.length;
-            }
-            if (Array.isArray(item.images) && item.images.length > 0) {
-                return item.images.length;
-            }
-            return 0;
+            return getItemImages(item).length;
         }
 
         function render() {
@@ -2467,7 +3342,7 @@
                     if (item.type === 'checklist' && item.checkItems) {
                         let checkListInner = item.checkItems.map((ci, idx) => `
                             <div class="checklist-item">
-                                <input type="checkbox" ${ci.checked ? 'checked' : ''} onclick="toggleCheckItemState(${item.id}, ${idx})">
+                                <input type="checkbox" ${ci.checked ? 'checked' : ''} onclick="toggleCheckItemState('${item.id}', ${idx})">
                                 <span class="${ci.checked ? 'checked' : ''}">${ci.text}</span>
                             </div>
                         `).join('');
@@ -2477,7 +3352,7 @@
                         bodyHtml = textVal ? `<div class="card-text">${linkifyText(textVal)}</div>` : '';
                     }
 
-                    let linksList = item.links || [];
+                    const linksList = getItemLinks(item);
                     let linksHtml = linksList.map(link => `
                         <a href="${link}" target="_blank" rel="noopener noreferrer" class="link-card-box">
                             <span>🔗 ${link}</span>
@@ -2485,10 +3360,10 @@
                         </a>
                     `).join('');
 
-                    let mediaList = item.mediaObjects || (item.images ? item.images.map(url => ({ url, type: 'image' })) : []);
-                    let mediaHtml = mediaList.map(media => `
-                        <div class="media-container" onclick="openMediaModal('${media.url}')">
-                            <img src="${media.url}" alt="이미지" onerror="this.style.display='none'">
+                    const imagesList = getItemImages(item);
+                    let mediaHtml = imagesList.map(imgUrl => `
+                        <div class="media-container" onclick="openMediaModal('${encodeURIComponent(imgUrl)}')">
+                            <img src="${imgUrl}" alt="첨부 이미지">
                             <span class="zoom-badge">⤢</span>
                         </div>
                     `).join('');
@@ -2510,12 +3385,12 @@
                                     <span class="type-badge">${typeLabel}</span>
                                     <span style="font-size: 0.8rem; opacity: 0.7; white-space: nowrap;">${item.date}</span>
                                 </div>
-                                <button type="button" class="${lockBtnClass}" onclick="promptLockSetup(${item.id})">${lockBtnText}</button>
+                                <button type="button" class="${lockBtnClass}" onclick="promptLockSetup('${item.id}')">${lockBtnText}</button>
                             </div>
                             ${titleStr}
                             ${bodyHtml}
                             ${linksList.length > 0 ? `<div class="link-wrapper">${linksHtml}</div>` : ''}
-                            ${mediaList.length > 0 ? `<div class="media-wrapper">${mediaHtml}</div>` : ''}
+                            ${imagesList.length > 0 ? `<div class="media-wrapper">${mediaHtml}</div>` : ''}
                         </div>
                     `;
                     bindSearchEvents();
@@ -2586,6 +3461,7 @@
 
         renderSidebar();
         render();
+        initSupabaseApp();
     </script>
 
 </body></html>
