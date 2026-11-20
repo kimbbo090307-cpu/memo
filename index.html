@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0062)file:///C:/Users/User/Downloads/gemini-code-1795085144374.html -->
-<html lang="ko" style="--bg-color: #F7F4EE; --card-color: #FFFFFF; --accent-color: #3B6E8C; --text-color: #1E3A5F; --sub-bg: #EAE3D2;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="ko" style="--bg-color: #F7F4EE; --card-color: #FFFFFF; --accent-color: #3B6E8C; --text-color: #1E3A5F; --sub-bg: #EAE3D2;">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The B-Archive</title>
-    <script src="./index_files/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #F7F4EE;
@@ -939,15 +939,15 @@
             <button type="button" class="mobile-close-btn" onclick="toggleMobileSidebar(event)">×</button>
         </div>
         <ul class="menu-list" id="menuList" onscroll="closeAllMenus()">
-                <li class="menu-item active">
-                    <span class="menu-item-clickable" onclick="switchTab('Memo', this.closest('.menu-item'))">Memo</span>
-                    <div style="display:flex; align-items:center;" onclick="event.stopPropagation();">
-                        <div class="sidebar-dots-container">
-                            <button type="button" class="dots-btn" onclick="openSidebarDropdown(event, 'Memo', true)">⋮</button>
-                        </div>
+            <li class="menu-item active">
+                <span class="menu-item-clickable" onclick="switchTab('Memo', this.closest('.menu-item'))">Memo</span>
+                <div style="display:flex; align-items:center;" onclick="event.stopPropagation();">
+                    <div class="sidebar-dots-container">
+                        <button type="button" class="dots-btn" onclick="openSidebarDropdown(event, 'Memo', true)">⋮</button>
                     </div>
-                </li>
-            </ul>
+                </div>
+            </li>
+        </ul>
 
         <div class="add-section">
             <button type="button" class="btn" onclick="openCreateArchiveModal()">아카이브 생성하기</button>
@@ -955,36 +955,37 @@
     </sidebar>
 
     <main id="mainContent" onclick="handleMainClick(event)" onscroll="closeAllMenus()">
-                <div class="header-bar">
-                    <h1>Memo</h1>
-                    <div class="search-container">
-                        <div class="search-input-box " id="searchInputBox">
-                            <input type="text" id="searchInput" placeholder="제목/내용 검색..." value="">
-                        </div>
-                        <button type="button" class="search-btn" onclick="toggleSearchBox()" title="검색"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></button>
-                    </div>
+        <div class="header-bar">
+            <h1>Memo</h1>
+            <div class="search-container">
+                <div class="search-input-box" id="searchInputBox">
+                    <input type="text" id="searchInput" placeholder="제목/내용 검색..." value="">
                 </div>
-                <div class="session-tabs">
-                <div class="session-tab active" onclick="currentSession='전체'; viewingDetailId=null; render();">전체</div>
-                <div class="session-tab " onclick="currentSession='즐겨찾기'; viewingDetailId=null; render();"><svg class="tab-star-icon" viewBox="0 0 24 24"><path d="M12 2.5c.6 0 1.1.3 1.4.9l2.3 4.7 5.2.8c.6.1 1.1.5 1.3 1.1.2.6 0 1.2-.4 1.6l-3.8 3.7.9 5.2c.1.6-.1 1.2-.6 1.6-.5.4-1.1.4-1.7.1L12 19.7l-4.6 2.4c-.5.3-1.2.2-1.7-.1-.5-.4-.7-1-.6-1.6l.9-5.2-3.8-3.7c-.4-.4-.6-1-.4-1.6.2-.6.7-1 1.3-1.1l5.2-.8 2.3-4.7c.3-.6.8-.9 1.4-.9z"></path></svg> 즐겨찾기</div>
-                <div class="session-tab " onclick="currentSession='미분류'; viewingDetailId=null; render();">미분류</div></div>
-                
-                <div class="batch-delete-bar " id="batchDeleteBar">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:0.9rem; font-weight:bold;">총 <span id="selectedCount">0</span>개 선택됨</span>
-                    </div>
-                    <div style="display:flex; gap:6px;">
-                        <button type="button" class="btn" style="background:#555; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="toggleSelectAll([])">전체 선택</button>
-                        <button type="button" class="btn" style="background:#d9534f; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="deleteSelectedItems()">선택 삭제</button>
-                        <button type="button" class="btn" style="background:#888; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="toggleBatchMode()">취소</button>
-                    </div>
-                </div>
-            
-                <div id="cardsListContainer"><p>검색 결과가 없거나 작성된 기록이 없습니다.</p></div>
-                <button type="button" class="fab" onclick="toggleTypeSelectModal(true)">+</button>
-            </main>
+                <button type="button" class="search-btn" onclick="toggleSearchBox()" title="검색"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></button>
+            </div>
+        </div>
+        <div class="session-tabs">
+            <div class="session-tab active" onclick="currentSession='전체'; viewingDetailId=null; render();">전체</div>
+            <div class="session-tab" onclick="currentSession='즐겨찾기'; viewingDetailId=null; render();"><svg class="tab-star-icon" viewBox="0 0 24 24"><path d="M12 2.5c.6 0 1.1.3 1.4.9l2.3 4.7 5.2.8c.6.1 1.1.5 1.3 1.1.2.6 0 1.2-.4 1.6l-3.8 3.7.9 5.2c.1.6-.1 1.2-.6 1.6-.5.4-1.1.4-1.7.1L12 19.7l-4.6 2.4c-.5.3-1.2.2-1.7-.1-.5-.4-.7-1-.6-1.6l.9-5.2-3.8-3.7c-.4-.4-.6-1-.4-1.6.2-.6.7-1 1.3-1.1l5.2-.8 2.3-4.7c.3-.6.8-.9 1.4-.9z"></path></svg> 즐겨찾기</div>
+            <div class="session-tab" onclick="currentSession='미분류'; viewingDetailId=null; render();">미분류</div>
+        </div>
+        
+        <div class="batch-delete-bar" id="batchDeleteBar">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:0.9rem; font-weight:bold;">총 <span id="selectedCount">0</span>개 선택됨</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button type="button" class="btn" style="background:#555; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="toggleSelectAll([])">전체 선택</button>
+                <button type="button" class="btn" style="background:#d9534f; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="deleteSelectedItems()">선택 삭제</button>
+                <button type="button" class="btn" style="background:#888; padding:6px 12px; font-size:0.85rem; min-height:auto; white-space:nowrap;" onclick="toggleBatchMode()">취소</button>
+            </div>
+        </div>
+    
+        <div id="cardsListContainer"><p>검색 결과가 없거나 작성된 기록이 없습니다.</p></div>
+        <button type="button" class="fab" onclick="toggleTypeSelectModal(true)">+</button>
+    </main>
 
-    <div class="dropdown-menu" id="globalCardDropdown" onclick="event.stopPropagation()" style="top: 194px; left: 102.4px; right: auto;"></div>
+    <div class="dropdown-menu" id="globalCardDropdown" onclick="event.stopPropagation()"></div>
 
     <div class="modal" id="typeSelectModal">
         <div class="modal-content" style="max-width: 350px; text-align: center;">
@@ -999,23 +1000,18 @@
 
     <div class="modal" id="postModal">
         <div class="modal-content">
-            <h3 id="modalHeaderTitle">MCR 노트 작성</h3>
+            <h3 id="modalHeaderTitle">새 노트 작성</h3>
             <div id="sessionSelectArea" style="margin-bottom: 10px;">
-                <select id="modalFolder" style="width: 100%;"><option value="미분류">미분류</option></select>
+                <select id="modalFolder" style="width: 100%;"></select>
             </div>
             <input type="text" id="modalTitle" placeholder="제목">
             <textarea id="modalContent" placeholder="내용 또는 링크(URL) 입력..."></textarea>
             
-            <div id="mediaInputsContainer"><label style="font-size: 0.85rem; display: block; margin-bottom: 6px;">사진 / GIF 첨부</label><div class="media-input-row">
-                <div class="unified-input-box ">
-                    <input type="text" class="modal-media-url" placeholder="사진/움짤 파일 선택 또는 링크(URL)" value="" style="margin-bottom:0;">
-                    <label for="file-1795085240793-8272" class="file-select-label">파일 선택</label>
-                    <input type="file" id="file-1795085240793-8272" class="modal-media-file" accept="image/*,.gif" style="display: none;" onchange="handleFileSelect(this)">
-                </div>
-                <button type="button" class="remove-row-btn" style="display: none;" onclick="removeMediaRow(this)">삭제</button>
-            </div></div>
+            <div id="mediaInputsContainer">
+                <label style="font-size: 0.85rem; display: block; margin-bottom: 6px;">사진 / GIF 첨부</label>
+            </div>
 
-            <input type="hidden" id="editTargetId" value="">
+            <input type="hidden" id="editTargetId">
             <div class="modal-buttons">
                 <button type="button" class="btn" style="background-color: #888;" onclick="toggleModal(false)">취소</button>
                 <button type="button" class="btn" onclick="savePost()">저장하기</button>
@@ -1100,7 +1096,7 @@
             <h3 id="pwModalTitle">새 비밀번호 4자리 설정</h3>
             <input type="password" id="pwInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
             <input type="hidden" id="pwActionType" value="setlock">
-            <input type="hidden" id="pwTargetId" value="f99faeea-a0af-4287-942f-e1bcff612060">
+            <input type="hidden" id="pwTargetId" value="">
             <div class="modal-buttons">
                 <button type="button" class="btn" style="background-color: #888;" onclick="togglePasswordModal(false)">취소</button>
                 <button type="button" class="btn" onclick="submitPasswordModal()">확인</button>
@@ -3463,5 +3459,5 @@
         render();
         initSupabaseApp();
     </script>
-
-</body></html>
+</body>
+</html>
